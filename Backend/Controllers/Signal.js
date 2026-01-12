@@ -1,4 +1,4 @@
-const db = require('../Config/Databse');
+const db = require('../Config/Database');
 
 // ADMIN: Create a new signal (Draft status by default)
 exports.createSignal = async (req, res) => {

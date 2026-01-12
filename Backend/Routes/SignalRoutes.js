@@ -1,9 +1,10 @@
 // Routes/SignalRoutes.js
 const express = require('express');
 const router = express.Router();
-const signalController = require('../Controllers/SignalController');
+
+const signalController = require('../Controllers/Signal');
 const authMiddleware = require('../Middleware/Authmiddleware');
-const roleMiddleware = require('./Middleware/Rolemiddleware'); // Import new middleware
+const roleMiddleware = require('../Middleware/Rolemiddleware'); // Import new middleware
 
 // Users can view approved signals
 router.get('/', authMiddleware, signalController.getAllSignals);
