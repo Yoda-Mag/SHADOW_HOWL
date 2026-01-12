@@ -12,4 +12,12 @@ router.get('/', authMiddleware, signalController.getAllSignals);
 // ONLY Admins can create signals
 router.post('/create', authMiddleware, roleMiddleware('admin'), signalController.createSignal);
 
+// ONLY Admins can approve signals
+router.put('/approve/:id', authMiddleware, roleMiddleware('admin'), signalController.approveSignal);
+
+// ONLY Admins can edit signals
+router.put('/update/:id', authMiddleware, roleMiddleware('admin'), signalController.updateSignal);
+
+// ONLY Admins can delete signals
+router.delete('/delete/:id', authMiddleware, roleMiddleware('admin'), signalController.deleteSignal);
 module.exports = router;
