@@ -1,0 +1,346 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  width: 100%;
+  overflow-x: hidden;
+  background-color: #121212;
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #121212;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  background-color: #121212;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+/* Dark theme only - removed light theme media query */
+
+/* Content box styling for the login form */
+.content-box {
+  background-color: #170f1dce; /* deep purple background */
+  max-width: 350px;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 0 10px #a855f7,
+              0 0 20px #6C3D91,
+              0 0 30px #9333ea; /* Reduced spread */
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Remove any hover effects on login/register form elements */
+.content-box div:hover,
+.content-box form:hover,
+.content-box .flex:hover {
+  background: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Neon button styling for login/register buttons */
+.login-neon-button:hover {
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.8), 0 0 50px rgba(139, 92, 246, 0.4), 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+  background: linear-gradient(135deg, rgba(108, 61, 145, 0.8) 0%, rgba(139, 92, 181, 0.6) 100%) !important;
+  transform: translateY(-2px) !important;
+}
+
+.login-neon-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.login-neon-button:hover::before {
+  left: 100%;
+}
+
+.content-boxDashboard {
+  background-color: #170f1dce; /* deep purple background */
+  max-width: 1100px;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 0 10px #a855f7,
+              0 0 20px #6C3D91,
+              0 0 30px #9333ea; /* Reduced spread */
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.min-h-screen {
+  width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden !important;
+  }
+
+  .min-h-screen {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+
+  main {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .content-box {
+    max-width: 85vw !important;
+    width: 100% !important;
+    padding: 1rem !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .content-box h2 {
+    font-size: 1.25rem;
+  }
+
+  .content-box h2 font[size="6"] {
+    font-size: 1.5rem;
+  }
+
+  .content-box h2 font[size="5"] {
+    font-size: 1.25rem;
+  }
+
+  input,
+  button,
+  .content-box label {
+    width: 85vw !important;
+    max-width: 300px !important;
+    box-sizing: border-box !important;
+  }
+
+  .content-box .flex.items-center {
+    justify-content: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  .content-box input[type="checkbox"] {
+    width: auto !important;
+    margin-right: 0.5rem !important;
+  }
+
+  .content-box label[for="rememberMe"] {
+    width: auto !important;
+    margin-left: 0 !important;
+  }
+
+  footer {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0rem !important;
+}
+
+
+  footer p,
+  footer a {
+    font-size: 0.6rem;
+  }
+
+  main {
+  flex-grow: 0.5 !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+
+
+}
+
+.register-page {
+  overflow-x: hidden;
+}
+
+.register-wrap {
+  max-width: 350px;
+  margin: 20px auto;
+  box-sizing: border-box;
+}
+
+.register-form {
+  width: 100%;
+  box-sizing: border-box;
+  display: block; 
+}
+
+.register-form .field,
+.register-form > div {
+  min-width: 0;  
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .register-wrap {
+    max-width: 760px; 
+    padding: 1.5rem;
+  }
+
+  .register-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .register-form input,
+  .register-form label,
+  .register-form button {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .submit-row {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+  }
+
+  .submit-row .register-btn {
+    width: 100%;
+    max-width: 320px;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 640px) {
+  .content-boxDashboard {
+    max-width: 95vw !important;
+    width: 100% !important;
+    padding: 1rem !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .content-boxDashboard h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .content-boxDashboard input,
+  .content-boxDashboard button,
+  .content-boxDashboard label {
+    width: 90vw !important;
+    max-width: 320px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Smaller header for auth pages (Login, Register, Forgot Password) - match other mobile headers */
+  header.dashboard-header .header-logo-container img {
+    width: 80px !important;
+    max-width: 80px !important;
+  }
+
+  header.dashboard-header .text-right h1 {
+    font-size: 1.1rem !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+  }
+
+  header.dashboard-header .text-right p {
+    font-size: 0.5rem !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    margin-top: 0.2rem !important;
+  }
+
+  header.dashboard-header {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Hide desktop header elements on mobile */
+  header.dashboard-header .dashboard-header-logo,
+  header.dashboard-header .dashboard-header-title {
+    display: none !important;
+  }
+}
+
+/* Desktop header styles for auth pages - show desktop elements, hide mobile */
+@media (min-width: 1024px) {
+  /* Hide mobile text-right element on auth pages for desktop */
+  .min-h-screen header.dashboard-header .text-right {
+    display: none !important;
+  }
+
+  /* Ensure logo container is hidden on desktop for auth pages too */
+  .min-h-screen header.dashboard-header .header-logo-container {
+    display: none !important;
+  }
+
+  /* Show and style desktop header elements - Manager Dashboard Style */
+  .min-h-screen header.dashboard-header .dashboard-header-logo {
+    display: flex !important;
+    align-items: center;
+  }
+
+  .min-h-screen header.dashboard-header .dashboard-header-logo img {
+    width: clamp(112px, 20vw, 176px);
+  }
+
+  .min-h-screen header.dashboard-header .dashboard-header-title {
+    display: block !important;
+    text-align: right;
+  }
+
+  .min-h-screen header.dashboard-header .dashboard-header-title h1 {
+    margin: 0;
+    line-height: 1.1;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: bold;
+    color: white !important;
+    letter-spacing: 0.05em;
+  }
+
+  .min-h-screen header.dashboard-header .dashboard-header-title p {
+    font-size: clamp(0.75rem, 2vw, 1rem);
+    color: #d1d5db !important;
+    font-style: italic;
+    font-weight: bold;
+    margin: 0.25rem 0 0 0;
+  }
+}
