@@ -56,15 +56,33 @@ exports.approveSignal = async (req, res) => {
 };
 // USER/ADMIN: Get signals (Users only see approved ones)
 exports.getAllSignals = async (req, res) => {
-    const isAdmin = req.user.role === 'admin';
     try {
-        // Admins see everything, Users only see approved
-        const query = isAdmin 
-            ? "SELECT * FROM signals ORDER BY created_at DESC" 
-            : "SELECT * FROM signals WHERE is_approved = TRUE ORDER BY created_at DESC";
-            
-        const [signals] = await db.query(query);
+        const { role, id } = req.user;
+
+        // 1. Fetch user's current subscription info
+        const [userRows] = await db.query("SELECT subscription_status, subscription_expiry FROM users WHERE id = ?", [id]);
+        const user = userRows[0];
+
+        // 2. Admin always has access [cite: 11]
+        if (role === 'admin') {
+            const [signals] = await db.query("SELECT * FROM signals ORDER BY created_at DESC");
+            return res.json(signals);
+        }
+
+        // 3. Check if subscription is active and not expired [cite: 49]
+        const today = new Date();
+        if (user.subscription_status !== 'active' || (user.subscription_expiry && new Date(user.subscription_expiry) < today)) {
+            return res.status(403).json({ 
+                message: "Subscription Required", 
+                status: user.subscription_status,
+                instruction: "Please pay the Admin via Phone: [Your Phone Number Here]" 
+            });
+        }
+
+        // 4. Return live signals for active users [cite: 30]
+        const [signals] = await db.query("SELECT * FROM signals WHERE is_approved = 1 ORDER BY created_at DESC");
         res.json(signals);
+
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
