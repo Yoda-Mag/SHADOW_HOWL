@@ -7,15 +7,18 @@ const authRoutes = require('./Routes/AuthRoutes');
 const authMiddleware = require('./Middleware/Authmiddleware'); 
 const signalRoutes = require('./Routes/SignalRoutes');
 const userRoutes = require('./Routes/UserRoutes');
+const chatRoutes = require('./Routes/ChatRoutes');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/signals', signalRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/chat', chatRoutes); 
 
 // Test Route
 app.get('/api/auth/verify-me', authMiddleware, (req, res) => {
