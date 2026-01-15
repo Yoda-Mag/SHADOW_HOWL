@@ -1,0 +1,38 @@
+name: Shadow Howl CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # --- BACKEND CI JOB ---
+  backend-ci:
+    name: Backend Build & Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (Latest 2026 LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24' # Using the current stable LTS
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: npm ci # Use 'npm ci' for clean, consistent installs in CI
+
+      - name: Run Linter (ESLint)
+        working-directory: ./backend
+        run: npx eslint . --max-warnings 0
+
+      - name: Syntax Check
+        working-directory: ./backend
+        run: node --check index.js
+
+  
