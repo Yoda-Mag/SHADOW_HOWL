@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import './assets/styles/index.css';
 // We will build these next:
 // import Feed from './pages/Feed'; 
 // import AdminDashboard from './pages/AdminDashboard';

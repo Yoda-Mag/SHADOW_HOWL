@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme {
+  --color-howl-black: #020617;
+  --color-howl-blue: #3b82f6;
+}
+
+/* We use standard CSS here to avoid the @apply lookup error */
+:root {
+  background-color: #020617;
+  color: #e2e8f0; /* slate-200 */
+  font-family: Inter, system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Reset input appearance to use custom styles */
+input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
