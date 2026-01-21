@@ -19,15 +19,28 @@ export default function Login() {
     }
 
     try {
-      // TODO: Add API call to backend
-      console.log('Login attempt:', { email, password });
-      // const response = await fetch('http://localhost:5000/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password }),
-      // });
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // This catches errors sent by your backend (e.g., 401 Unauthorized)
+        throw new Error(data.message || 'Invalid credentials');
+      }
+
+      // 1. Save the Token and Role to localStorage
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', data.role);
+
+      // 2. Redirect the user (You'll need useNavigate from react-router-dom)
+      window.location.href = '/feed'; 
+
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
