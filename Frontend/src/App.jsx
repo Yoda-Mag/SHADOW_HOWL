@@ -2,10 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Feed from './pages/Feed';
+import Chat from './pages/Chat';
 import './assets/styles/index.css';
-// We will build these next:
-// import Feed from './pages/Feed'; 
-// import AdminDashboard from './pages/AdminDashboard';
 
 // Helper to check if user is authenticated
 const ProtectedRoute = ({ children, roleRequired }) => {
@@ -32,7 +31,13 @@ function App() {
                 {/* Subscriber Routes */}
                 <Route path="/feed" element={
                     <ProtectedRoute>
-                        <div className="p-10 text-white">Signal Feed Coming Soon...</div>
+                        <Feed />
+                    </ProtectedRoute>
+                } />
+                
+                <Route path="/chat/ask" element={
+                    <ProtectedRoute>
+                        <Chat />
                     </ProtectedRoute>
                 } />
 

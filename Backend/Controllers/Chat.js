@@ -18,9 +18,30 @@ exports.askAssistant = async (req, res) => {
             ]
         });
 
-        res.json({ success: true, answer: response.text });
+        // Log the full response structure for debugging
+        console.log('Gemini API Response:', JSON.stringify(response, null, 2));
+
+        // Extract text from the response - handle different formats
+        let answer = '';
+        
+        // Try different possible response structures
+        if (response.candidates && response.candidates[0]?.content?.parts?.[0]?.text) {
+            answer = response.candidates[0].content.parts[0].text;
+        } else if (response.text) {
+            answer = response.text;
+        } else if (response.content?.parts?.[0]?.text) {
+            answer = response.content.parts[0].text;
+        } else if (typeof response === 'string') {
+            answer = response;
+        } else {
+            console.error('Could not extract text from response:', response);
+            answer = `Response received but could not extract text. Raw: ${JSON.stringify(response).substring(0, 200)}`;
+        }
+
+        console.log('Extracted answer:', answer);
+        res.json({ success: true, answer });
     } catch (err) {
-        console.error("New SDK Error:", err);
-        res.status(500).json({ error: "AI is calibrating. Please try again." });
+        console.error("Gemini API Error:", err);
+        res.status(500).json({ error: `AI Error: ${err.message}` });
     }
 };
