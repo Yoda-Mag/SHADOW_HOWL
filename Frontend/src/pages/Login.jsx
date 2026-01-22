@@ -82,11 +82,11 @@ export default function Login() {
           disabled={loading}
           className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all"
         >
-          {loading ? 'Executing...' : 'Execute Login'}
+          {loading ? 'Executing...' : 'Login'}
         </button>
 
         <div className="text-center text-white/60 text-sm">
-          <p>Don't have access? <a href="/register" className="text-blue-400 hover:text-blue-300">Request Access</a></p>
+          <p>Don't have access? <a href="/register" className="text-blue-400 hover:text-blue-300">Sign up</a></p>
         </div>
       </form>
     </AuthLayout>
