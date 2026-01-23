@@ -1,0 +1,39 @@
+name: Shadow Howl Frontend CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    # REMOVED paths filtering temporarily to force the CI to run 
+    # This helps us debug if the naming was the issue
+
+jobs:
+  frontend-build:
+    name: Frontend Build & Sanity
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24' 
+          cache: 'npm'
+          cache-dependency-path: Frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ./Frontend
+        run: npm ci 
+
+      - name: Lint Check
+        working-directory: ./Frontend
+        # REMOVED continue-on-error. We want to see the real error.
+        run: npm run lint
+
+      - name: Build Project (Vite)
+        working-directory: ./Frontend
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          CI: true
