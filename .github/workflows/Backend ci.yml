@@ -1,4 +1,4 @@
-name: Shadow Howl CI/CD
+name: Shadow Howl Backend CI/CD
 
 on:
   push:
