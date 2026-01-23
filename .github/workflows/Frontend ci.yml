@@ -54,13 +54,3 @@ jobs:
           name: frontend-dist
           path: Frontend/dist/
           retention-days: 30
-
-      - name: Build Status Summary
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "✅ Frontend build completed successfully"
-          else
-            echo "❌ Frontend build failed"
-            exit 1
-          fi
