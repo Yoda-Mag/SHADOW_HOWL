@@ -1,4 +1,4 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -7,7 +7,7 @@ import Chat from './pages/Chat';
 import './assets/styles/index.css';
 
 // Helper to check if user is authenticated
-const ProtectedRoute = ({ children, roleRequired }) => {
+function ProtectedRoute({ children, roleRequired }) {
     const token = localStorage.getItem('token');
     const userRole = localStorage.getItem('role');
 
@@ -18,6 +18,11 @@ const ProtectedRoute = ({ children, roleRequired }) => {
     }
 
     return children;
+}
+
+ProtectedRoute.propTypes = {
+    children: PropTypes.node,
+    roleRequired: PropTypes.string,
 };
 
 function App() {

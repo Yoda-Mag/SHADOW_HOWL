@@ -86,7 +86,7 @@ export default function Login() {
         </button>
 
         <div className="text-center text-white/60 text-sm">
-          <p>Don't have access? <a href="/register" className="text-blue-400 hover:text-blue-300">Sign up</a></p>
+          <p>Don&apos;t have access? <a href="/register" className="text-blue-400 hover:text-blue-300">Sign up</a></p>
         </div>
       </form>
     </AuthLayout>

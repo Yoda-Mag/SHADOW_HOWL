@@ -1,4 +1,6 @@
-export default function AuthLayout({ children, title }) {
+import PropTypes from 'prop-types';
+
+function AuthLayout({ children, title }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#020617] relative overflow-hidden">
       {/* Blue Ambient Glows */}
@@ -17,3 +19,9 @@ export default function AuthLayout({ children, title }) {
     </div>
   );
 }
+export default AuthLayout;
+
+AuthLayout.propTypes = {
+  children: PropTypes.node,
+  title: PropTypes.string.isRequired,
+};
