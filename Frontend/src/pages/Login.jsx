@@ -33,11 +33,18 @@ export default function Login() {
       }
 
       // 1. Save the Token and Role to localStorage
+      const userRole = data.role || (data.user && data.user.role);
+      
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
+      localStorage.setItem('role', userRole);
 
       // 2. Redirect the user (You'll need useNavigate from react-router-dom)
-      window.location.href = '/feed'; 
+      if (userRole === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/feed';
+      }
 
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');

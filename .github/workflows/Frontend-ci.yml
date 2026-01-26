@@ -3,8 +3,12 @@ name: Shadow Howl Frontend CI/CD
 on:
   push:
     branches: [ main ]
-    # REMOVED paths filtering temporarily to force the CI to run 
-    # This helps us debug if the naming was the issue
+    paths:
+      - 'Frontend/**' # Only run if you actually change the UI
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'Frontend/**'
 
 jobs:
   frontend-build:
@@ -19,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24' 
-          cache: 'npm'
+          cache: 'npm' # Activates the cache for faster subsequent runs
           cache-dependency-path: Frontend/package-lock.json
 
       - name: Install Dependencies
@@ -28,7 +32,6 @@ jobs:
 
       - name: Lint Check
         working-directory: ./Frontend
-        # REMOVED continue-on-error. We want to see the real error.
         run: npm run lint
 
       - name: Build Project (Vite)
@@ -37,3 +40,11 @@ jobs:
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           CI: true
+
+      - name: Upload Production Build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist-files
+          path: Frontend/dist/
+          retention-days: 7 # Keeps the build files for a week

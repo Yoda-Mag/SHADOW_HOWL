@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Feed from './pages/Feed';
 import Chat from './pages/Chat';
+import Admin from './pages/Admin';
 import './assets/styles/index.css';
 
 // Helper to check if user is authenticated
@@ -19,11 +20,6 @@ function ProtectedRoute({ children, roleRequired }) {
 
     return children;
 }
-
-ProtectedRoute.propTypes = {
-    children: PropTypes.node,
-    roleRequired: PropTypes.string,
-};
 
 function App() {
     return (
@@ -47,9 +43,10 @@ function App() {
                 } />
 
                 {/* Admin Only Routes */}
+              // ... inside your Routes ...
                 <Route path="/admin" element={
                     <ProtectedRoute roleRequired="admin">
-                        <div className="p-10 text-white">Admin Dashboard Coming Soon...</div>
+                        <Admin /> 
                     </ProtectedRoute>
                 } />
 
@@ -61,3 +58,8 @@ function App() {
 }
 
 export default App;
+
+ProtectedRoute.propTypes = {
+    children: PropTypes.node,
+    roleRequired: PropTypes.string,
+};

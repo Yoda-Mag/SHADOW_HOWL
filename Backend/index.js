@@ -8,6 +8,8 @@ const authMiddleware = require('./Middleware/Authmiddleware');
 const signalRoutes = require('./Routes/SignalRoutes');
 const userRoutes = require('./Routes/UserRoutes');
 const chatRoutes = require('./Routes/ChatRoutes');
+const adminRoutes = require('./Routes/adminRoutes');
+
 
 const app = express();
 app.use(cors());
@@ -19,6 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/signals', signalRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chat', chatRoutes); 
+app.use('/api/admin', adminRoutes);
 
 // Test Route
 app.get('/api/auth/verify-me', authMiddleware, (req, res) => {
