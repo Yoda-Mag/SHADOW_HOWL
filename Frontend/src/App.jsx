@@ -43,7 +43,6 @@ function App() {
                 } />
 
                 {/* Admin Only Routes */}
-              // ... inside your Routes ...
                 <Route path="/admin" element={
                     <ProtectedRoute roleRequired="admin">
                         <Admin /> 

@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react'; // Removed 'React' (unused)
+import PropTypes from 'prop-types'; // Added for prop validation
 import { 
-  Shield, UserCheck, UserX, Signal, Activity, 
-  Trash2, Edit, Plus, Pause, Play, Users,
-  X, Send, Target, ShieldAlert, TrendingUp
-} from 'lucide-react';
+  Shield, UserX, Signal, 
+  Trash2, Edit, Plus, Users,
+  X, Send, TrendingUp
+} from 'lucide-react'; // Removed: Play, Pause, Activity, UserCheck, ShieldAlert, Target (unused)
 
 // --- SIGNAL MODAL COMPONENT ---
 const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
   const [formData, setFormData] = useState({
-    pair: '', type: 'BUY', entry_price: '', sl: '', tp: ''
+    pair: '', type: 'buy', entry_price: '', sl: '', tp: ''
   });
 
-  // Sync form with initialData when editing
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
     } else {
-      setFormData({ pair: '', type: 'BUY', entry_price: '', sl: '', tp: '' });
+      setFormData({ pair: '', type: 'buy', entry_price: '', sl: '', tp: '' });
     }
   }, [initialData, isOpen]);
 
@@ -61,12 +61,12 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
           <div className="grid grid-cols-2 gap-4">
             <input 
               placeholder="Pair (BTC/USDT)" 
-              className="bg-black/40 border border-white/10 p-3 rounded-lg outline-none"
+              className="bg-black/40 border border-white/10 p-3 rounded-lg outline-none text-white"
               value={formData.pair}
               onChange={e => setFormData({...formData, pair: e.target.value.toUpperCase()})}
             />
             <select 
-              className="bg-black/40 border border-white/10 p-3 rounded-lg outline-none"
+              className="bg-black/40 border border-white/10 p-3 rounded-lg outline-none text-white"
               value={formData.type}
               onChange={e => setFormData({...formData, type: e.target.value})}
             >
@@ -76,21 +76,21 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
           </div>
           <input 
             type="number" step="any" placeholder="Entry Price" 
-            className="w-full bg-black/40 border border-white/10 p-3 rounded-lg"
+            className="w-full bg-black/40 border border-white/10 p-3 rounded-lg text-white"
             value={formData.entry_price}
             onChange={e => setFormData({...formData, entry_price: e.target.value})}
           />
           <div className="grid grid-cols-2 gap-4">
             <input 
-              placeholder="SL" className="bg-black/40 border border-red-500/20 p-3 rounded-lg"
+              placeholder="SL" className="bg-black/40 border border-red-500/20 p-3 rounded-lg text-white"
               value={formData.sl} onChange={e => setFormData({...formData, sl: e.target.value})}
             />
             <input 
-              placeholder="TP" className="bg-black/40 border border-green-500/20 p-3 rounded-lg"
+              placeholder="TP" className="bg-black/40 border border-green-500/20 p-3 rounded-lg text-white"
               value={formData.tp} onChange={e => setFormData({...formData, tp: e.target.value})}
             />
           </div>
-          <button className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold flex items-center justify-center gap-2">
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold flex items-center justify-center gap-2 text-white transition-all">
             <Send size={18}/> {initialData ? 'UPDATE' : 'DEPLOY'}
           </button>
         </form>
@@ -99,31 +99,39 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
   );
 };
 
+// Prop validation fixed here
+SignalModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
+  initialData: PropTypes.object
+};
+
 // --- MAIN ADMIN COMPONENT ---
 const Admin = () => {
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState([]);
   const [signals, setSignals] = useState([]);
-  const [isPaused, setIsPaused] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSignal, setEditingSignal] = useState(null);
 
   const API_URL = import.meta.env.VITE_API_URL;
-  const headers = { 
-    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-    'Content-Type': 'application/json'
-  };
-
-  useEffect(() => { fetchData(); }, [activeTab]);
-
-  const fetchData = async () => {
+  
+  // Wrapped in useCallback to satisfy useEffect dependency requirements
+  const fetchData = useCallback(async () => {
+    const headers = { 
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+    };
     try {
       const endpoint = activeTab === 'users' ? '/api/admin/users' : '/api/signals';
       const res = await fetch(`${API_URL}${endpoint}`, { headers });
       const data = await res.json();
-      activeTab === 'users' ? setUsers(data) : setSignals(data);
+      if (activeTab === 'users') setUsers(data); else setSignals(data);
     } catch (err) { console.error("Fetch error:", err); }
-  };
+  }, [activeTab, API_URL]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleEditClick = (signal) => {
     setEditingSignal(signal);
@@ -131,6 +139,10 @@ const Admin = () => {
   };
 
   const handleUserToggle = async (userId, currentStatus) => {
+    const headers = { 
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+    };
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     await fetch(`${API_URL}/api/admin/users/${userId}/status`, {
       method: 'PATCH', headers, body: JSON.stringify({ status: newStatus })
@@ -139,6 +151,10 @@ const Admin = () => {
   };
 
   const deleteSignal = async (id) => {
+    const headers = { 
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+    };
     if (window.confirm("Delete this signal?")) {
       await fetch(`${API_URL}/api/admin/signals/${id}`, { method: 'DELETE', headers });
       fetchData();
@@ -147,18 +163,10 @@ const Admin = () => {
 
   return (
     <div className="p-8 bg-slate-900 min-h-screen text-white font-sans">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Shield className="text-blue-500" size={32} /> Command Center
-          </h1>
-        </div>
-        <button 
-          onClick={() => setIsPaused(!isPaused)}
-          className={`px-6 py-3 rounded-xl font-bold transition-all ${isPaused ? 'bg-red-500' : 'bg-green-600'}`}
-        >
-          {isPaused ? 'RESUME SIGNALS' : 'PAUSE ALL SIGNALS'}
-        </button>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <Shield className="text-blue-500" size={32} /> Command Center
+        </h1>
       </div>
 
       <div className="flex gap-4 mb-6 border-b border-white/10">
@@ -186,7 +194,9 @@ const Admin = () => {
                     </span>
                   </td>
                   <td className="p-4 text-right">
-                    <button onClick={() => handleUserToggle(user.id, user.subscription_status)}><UserX size={20}/></button>
+                    <button onClick={() => handleUserToggle(user.id, user.subscription_status)} className="hover:text-red-400">
+                      <UserX size={20}/>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -198,7 +208,7 @@ const Admin = () => {
           <div>
             <div className="flex justify-between mb-6">
               <h3 className="text-lg font-semibold">Live Signals</h3>
-              <button onClick={() => { setEditingSignal(null); setIsModalOpen(true); }} className="bg-blue-600 px-4 py-2 rounded-lg flex items-center gap-2 font-bold">
+              <button onClick={() => { setEditingSignal(null); setIsModalOpen(true); }} className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg flex items-center gap-2 font-bold transition-all">
                 <Plus size={18}/> NEW SIGNAL
               </button>
             </div>
@@ -208,13 +218,13 @@ const Admin = () => {
                   <div className="flex justify-between">
                     <span className="text-blue-400 font-bold">{signal.pair}</span>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                      <button onClick={() => handleEditClick(signal)}><Edit size={16}/></button>
-                      <button onClick={() => deleteSignal(signal.id)} className="text-red-400"><Trash2 size={16}/></button>
+                      <button onClick={() => handleEditClick(signal)} className="hover:text-blue-400"><Edit size={16}/></button>
+                      <button onClick={() => deleteSignal(signal.id)} className="hover:text-red-400"><Trash2 size={16}/></button>
                     </div>
                   </div>
                   <div className="flex justify-between mt-4 text-sm">
                     <span>Entry: <b>{signal.entry_price}</b></span>
-                    <span className="uppercase font-bold text-green-400">{signal.type}</span>
+                    <span className={`uppercase font-bold ${signal.type === 'buy' ? 'text-green-400' : 'text-red-400'}`}>{signal.type}</span>
                   </div>
                 </div>
               ))}
@@ -234,9 +244,16 @@ const Admin = () => {
 };
 
 const TabButton = ({ active, onClick, icon, label }) => (
-  <button onClick={onClick} className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-all ${active ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-500'}`}>
+  <button onClick={onClick} className={`flex items-center gap-2 px-6 py-4 border-b-2 transition-all ${active ? 'border-blue-500 text-blue-400 bg-blue-500/5' : 'border-transparent text-slate-500'}`}>
     {icon} {label}
   </button>
 );
+
+TabButton.propTypes = {
+    active: PropTypes.bool,
+    onClick: PropTypes.func,
+    icon: PropTypes.node,
+    label: PropTypes.string
+};
 
 export default Admin;

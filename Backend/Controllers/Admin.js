@@ -52,6 +52,6 @@ exports.createSignal = async (req, res) => {
         );
         res.status(201).json({ message: "New signal broadcasted!" });
     } catch (err) {
-        res.status(500).json({ error: "Failed to post signal" });
+        res.status(500).json({  message: "Failed to post signal", error: err.message });
     }
 };
