@@ -88,20 +88,20 @@ exports.getAllSignals = async (req, res) => {
     }
 };
 
-// ADMIN: Edit an existing signal
+// ADMIN: Edit an existing signall
 exports.updateSignal = async (req, res) => {
     try {
+        const { id } = req.params;
+        const { pair, direction, entry_price, stop_loss, take_profit, notes } = req.body;
 
-         if (isNaN(entry_price) || isNaN(stop_loss)) {
-                return res.status(400).json({ message: "Prices must be valid numbers." });
+        // Validation (NOW AFTER destructuring)
+        if (isNaN(entry_price) || isNaN(stop_loss)) {
+            return res.status(400).json({ message: "Prices must be valid numbers." });
         }
                 
         if (pair.length > 10) {
-                return res.status(400).json({ message: "Pair name is too long (e.g., BTC/USD)." });
+            return res.status(400).json({ message: "Pair name is too long (e.g., BTC/USD)." });
         }
-
-        const { id } = req.params;
-        const { pair, direction, entry_price, stop_loss, take_profit, notes } = req.body;
 
         // Construct the update query
         const query = `
@@ -111,7 +111,13 @@ exports.updateSignal = async (req, res) => {
         `;
 
         const [result] = await db.query(query, [
-            pair, direction, entry_price, stop_loss, take_profit, notes, id
+            pair, 
+            direction.toUpperCase(), 
+            entry_price, 
+            stop_loss, 
+            take_profit, 
+            notes || "This is not financial advice. Trade at your own risk.", 
+            id
         ]);
 
         if (result.affectedRows === 0) {
@@ -120,7 +126,7 @@ exports.updateSignal = async (req, res) => {
 
         res.json({ success: true, message: "Signal updated successfully!" });
     } catch (err) {
-        console.error("Update Error:", err);
+        console.error("Update Signal Error:", err);
         res.status(500).json({ error: err.message });
     }
 };
