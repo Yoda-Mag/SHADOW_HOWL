@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { 
   Shield, UserX, Signal, 
   Trash2, Edit, Plus, Users,
-  X, Send, TrendingUp, CheckCircle, XCircle,
+  X, Send, TrendingUp, CheckCircle,
   AlertCircle, Loader2
 } from 'lucide-react';
 
@@ -259,7 +259,7 @@ const SignalCard = ({ signal, onEdit, onDelete, onToggleApproval, isProcessing }
       {/* Action Buttons */}
       <div className="flex gap-2 pt-4 border-t border-white/10">
         <button 
-          onClick={() => onToggleApproval(signal.id, signal.is_approved)}
+          onClick={() => onToggleApproval(signal.id)}
           disabled={isProcessing}
           className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
             isApproved
@@ -370,7 +370,7 @@ const Admin = () => {
     }
   };
 
-  const toggleApproval = async (signalId, currentStatus) => {
+  const toggleApproval = async (signalId) => {
     setProcessingSignalId(signalId);
     
     const headers = { 
