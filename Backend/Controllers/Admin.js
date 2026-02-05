@@ -25,8 +25,34 @@ exports.updateSubscription = async (req, res) => {
     const { status, expiryDays = 30 } = req.body; 
     
     try {
-        const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + parseInt(expiryDays));
+        // Validate status parameter
+        if (!status) {
+            return res.status(400).json({ message: "Status is required" });
+        }
+
+        // Validate user_id
+        if (!id || isNaN(id)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        // Map frontend status values to database enum values
+        // Frontend sends 'active' or 'inactive', map to database allowed values
+        let dbStatus = status;
+        if (status === 'inactive' || status === 'disabled') {
+            dbStatus = 'expired'; // Use 'expired' for deactivated subscriptions
+        }
+
+        // If deactivating, set end_date to now; if activating, set future date
+        let expiryDate;
+        if (status === 'inactive' || status === 'disabled') {
+            expiryDate = new Date(); // Current date deactivates immediately
+        } else {
+            expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + parseInt(expiryDays));
+        }
+
+        // Format date as YYYY-MM-DD HH:MM:SS for MySQL
+        const formattedDate = expiryDate.toISOString().slice(0, 19).replace('T', ' ');
 
         // Use ON DUPLICATE KEY UPDATE so it creates a record if one doesn't exist
         const query = `
@@ -35,10 +61,12 @@ exports.updateSubscription = async (req, res) => {
             ON DUPLICATE KEY UPDATE status = VALUES(status), end_date = VALUES(end_date)
         `;
 
-        await db.query(query, [id, status, expiryDate]);
+        console.log("UPDATE SUBSCRIPTION QUERY:", { id, dbStatus, formattedDate });
+        await db.query(query, [parseInt(id), dbStatus, formattedDate]);
         res.json({ message: `User status set to ${status}` });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("UPDATE SUBSCRIPTION ERROR:", err);
+        res.status(500).json({ error: err.message, errorDetails: err.toString() });
     }
 };
 
