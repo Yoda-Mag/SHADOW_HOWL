@@ -1,4 +1,5 @@
 const db = require('../Config/Database');
+const sendSignalEmail = require('../Utils/sendEmail');
 
 // 1. Get all users + their subscription status (Using JOIN)
 exports.getAllUsers = async (req, res) => {
@@ -142,9 +143,55 @@ exports.toggleApproval = async (req, res) => {
     const { id } = req.params;
     const { is_approved } = req.body; // Expecting 1 or 0
     try {
+        // Update the signal approval status
         await db.query("UPDATE signals SET is_approved = ? WHERE id = ?", [is_approved, id]);
-        res.json({ message: is_approved ? "Signal Approved!" : "Signal Unapproved!" });
+
+        // If signal is approved, fetch it and send emails to all active subscribers
+        if (is_approved) {
+            // Get the signal details
+            const [signals] = await db.query("SELECT * FROM signals WHERE id = ?", [id]);
+            if (signals.length === 0) {
+                return res.status(404).json({ message: "Signal not found" });
+            }
+            
+            const signal = signals[0];
+            console.log("Signal to approve:", signal);
+
+            // Fetch all users with active subscriptions (with better debugging)
+            const [activeUsers] = await db.query(`
+                SELECT u.id, u.email, u.username, s.status, s.end_date
+                FROM users u
+                INNER JOIN subscriptions s ON u.id = s.user_id
+                WHERE s.status = 'active' AND s.end_date > NOW()
+            `);
+
+            console.log(`Found ${activeUsers.length} active subscribers:`, activeUsers);
+
+            // Send email to each active subscriber
+            if (activeUsers.length > 0) {
+                const emailPromises = activeUsers.map(user => {
+                    console.log(`Queuing email for ${user.email}`);
+                    return sendSignalEmail(user.email, {
+                        pair: signal.pair,
+                        direction: signal.direction,
+                        entry_price: signal.entry_price,
+                        stop_loss: signal.stop_loss,
+                        take_profit: signal.take_profit
+                    }).catch(err => {
+                        console.error(`Failed to send email to ${user.email}:`, err.message);
+                    });
+                });
+                
+                await Promise.all(emailPromises);
+                console.log(`Signal approved and emails sent to ${activeUsers.length} subscribers`);
+            } else {
+                console.log("No active subscribers found to email");
+            }
+        }
+
+        res.json({ message: is_approved ? "Signal Approved and notifications sent!" : "Signal Unapproved!" });
     } catch (err) {
+        console.error("TOGGLE APPROVAL ERROR:", err);
         res.status(500).json({ error: err.message });
     }
 };

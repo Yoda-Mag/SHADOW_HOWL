@@ -379,9 +379,10 @@ const Admin = () => {
     };
     
     try {
-      const res = await fetch(`${API_URL}/api/signals/approve/${signalId}`, {
-        method: 'PUT',
-        headers
+      const res = await fetch(`${API_URL}/api/admin/signals/${signalId}/approve`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ is_approved: 1 })
       });
       
       if (res.ok) {
