@@ -18,7 +18,7 @@ const transporter = nodeMailer.createTransport({
 });
 
 // Verify connection configuration
-transporter.verify((error, success) => {
+transporter.verify((error) => {
     if (error) {
         console.error('Email transporter verification failed:', error);
     } else {
