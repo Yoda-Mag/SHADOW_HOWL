@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faLock, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -40,8 +40,8 @@ const Register = () => {
     return (
         <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
             <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl">
-                <div className="flex justify-center mb-6 text-blue-500">
-                    <FontAwesomeIcon icon={faShieldAlt} size="3x" />
+                <div className="flex justify-center mb-6">
+                    <img src="/ShadowHowlLogo.jpeg" alt="Shadow Howl Logo" className="h-20 w-20 object-contain rounded-lg" />
                 </div>
                 <h2 className="text-3xl font-bold text-center mb-2 text-white">JOIN THE PACK</h2>
                 <p className="text-zinc-500 text-center mb-8 uppercase tracking-widest text-xs">Create your Shadow Howl account</p>

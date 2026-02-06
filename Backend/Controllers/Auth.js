@@ -31,13 +31,25 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
+        // Get subscription status
+        const [subscriptions] = await db.query('SELECT status FROM subscriptions WHERE user_id = ?', [user.id]);
+        const subscriptionStatus = subscriptions.length > 0 ? subscriptions[0].status : 'expired';
+
         const token = jwt.sign(
             { id: user.id, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: '1d' }
         );
 
-        res.json({ token, user: { id: user.id, username: user.username, role: user.role } });
+        res.json({ 
+            token, 
+            user: { 
+                id: user.id, 
+                username: user.username, 
+                role: user.role,
+                subscription_status: subscriptionStatus
+            } 
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

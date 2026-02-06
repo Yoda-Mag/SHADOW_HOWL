@@ -59,23 +59,23 @@ exports.getAllSignals = async (req, res) => {
     try {
         const { role, id } = req.user;
 
-        // 1. Fetch user's current subscription info
-        const [userRows] = await db.query("SELECT subscription_status, subscription_expiry FROM users WHERE id = ?", [id]);
-        const user = userRows[0];
+        // 1. Fetch user's current subscription info from subscriptions table
+        const [subscriptionRows] = await db.query("SELECT status, end_date FROM subscriptions WHERE user_id = ?", [id]);
+        const subscription = subscriptionRows[0];
 
-        // 2. Admin always has access [cite: 11]
+        // 2. Admin always has access
         if (role === 'admin') {
             const [signals] = await db.query("SELECT * FROM signals ORDER BY created_at DESC");
             return res.json(signals);
         }
 
-        // 3. Check if subscription is active and not expired [cite: 49]
+        // 3. Check if subscription is active and not expired
         const today = new Date();
-        if (user.subscription_status !== 'active' || (user.subscription_expiry && new Date(user.subscription_expiry) < today)) {
+        if (!subscription || subscription.status !== 'active' || (subscription.end_date && new Date(subscription.end_date) < today)) {
             return res.status(403).json({ 
                 message: "Subscription Required", 
-                status: user.subscription_status,
-                instruction: "Please pay the Admin via Phone: [Your Phone Number Here]" 
+                status: subscription?.status || 'none',
+                instruction: "Please contact admin for subscription access" 
             });
         }
 

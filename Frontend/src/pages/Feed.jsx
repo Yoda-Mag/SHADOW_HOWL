@@ -5,20 +5,39 @@ import { faRobot } from '@fortawesome/free-solid-svg-icons';
 export default function Feed() {
   const [signals, setSignals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchSignals = async () => {
       try {
+        // Check subscription status first
+        const subscriptionStatus = localStorage.getItem('subscription_status');
+        if (subscriptionStatus !== 'active') {
+          window.location.href = '/restricted';
+          return;
+        }
+
         const token = localStorage.getItem('token');
         const response = await fetch('http://localhost:5000/api/signals', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        const data = await response.json();
-        setSignals(data);
+
+        // Handle error responses
+        if (!response.ok) {
+          const data = await response.json();
+          setError(data.message || 'Failed to fetch signals');
+          setSignals([]);
+        } else {
+          const data = await response.json();
+          setSignals(data || []);
+          setError('');
+        }
       } catch (err) {
-        console.error("Failed to intercept signals:", err);
+        console.error("Failed to fetch signals:", err);
+        setError('Network error. Please refresh the page.');
+        setSignals([]);
       } finally {
         setLoading(false);
       }
@@ -79,9 +98,15 @@ const sendMessage = async (e) => {
 
       {/* Main Feed */}
       <main className="max-w-6xl mx-auto grid gap-6">
+        {error && (
+          <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+        
         {loading ? (
           <div className="animate-pulse text-blue-500 font-mono">Scanning frequencies...</div>
-        ) : (
+        ) : signals && signals.length > 0 ? (
           signals.map((signal) => (
             <div key={signal.id} className="bg-slate-900/40 border border-white/5 p-6 rounded-2xl backdrop-blur-md hover:border-blue-500/30 transition-all group">
               <div className="flex justify-between items-start mb-4">
@@ -123,7 +148,12 @@ const sendMessage = async (e) => {
               </p>
             </div>
           ))
-        )}
+        ) : !loading && signals.length === 0 && !error ? (
+          <div className="text-center py-12 text-slate-400">
+            <p className="text-lg">No signals available at the moment.</p>
+            <p className="text-sm">Check back soon for new trading opportunities.</p>
+          </div>
+        ) : null}
 
         {/* Floating Chatbot Toggle Button */}
         <button

@@ -426,7 +426,7 @@ const Admin = () => {
     <div className="p-8 bg-slate-900 min-h-screen text-white font-sans">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Shield className="text-blue-500" size={32} /> Command Center
+          <Shield className="text-blue-500" size={32} /> Admin Center
         </h1>
         {loading && (
           <div className="flex items-center gap-2 text-slate-400">

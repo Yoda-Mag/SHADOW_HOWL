@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Feed from './pages/Feed';
 import Chat from './pages/Chat';
 import Admin from './pages/Admin';
+import Restricted from './pages/Restricted';
 import './assets/styles/index.css';
 
 // Helper to check if user is authenticated
@@ -28,6 +29,7 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/restricted" element={<Restricted />} />
 
                 {/* Subscriber Routes */}
                 <Route path="/feed" element={

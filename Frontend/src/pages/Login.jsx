@@ -34,16 +34,20 @@ export default function Login() {
 
       // 1. Save the Token and Role to localStorage
       const userRole = data.role || (data.user && data.user.role);
+      const subscriptionStatus = data.user?.subscription_status;
       
       localStorage.setItem('token', data.token);
-      localStorage.setItem('role', data.role);
       localStorage.setItem('role', userRole);
+      localStorage.setItem('subscription_status', subscriptionStatus);
 
       // 2. Redirect the user (You'll need useNavigate from react-router-dom)
       if (userRole === 'admin') {
         window.location.href = '/admin';
-      } else {
+      } else if (subscriptionStatus === 'active') {
         window.location.href = '/feed';
+      } else {
+        // Non-subscriber, show restricted access page
+        window.location.href = '/restricted';
       }
 
     } catch (err) {
@@ -54,7 +58,7 @@ export default function Login() {
   };
 
   return (
-    <AuthLayout title="Terminal Access">
+    <AuthLayout title="ShadowHowl Access">
       <form className="space-y-6" onSubmit={handleSubmit}>
         {error && (
           <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
@@ -73,16 +77,16 @@ export default function Login() {
           />
         </div>
 
-        <div>
-          <label className="block text-white text-sm font-medium mb-2">Access Key</label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-white placeholder-white/40 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-          />
-        </div>
+      <div>
+        <label className="block text-white text-sm font-medium mb-2">Access Key</label>
+        <input
+          type="password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full bg-white/10 border border-white/20 p-4 rounded-xl text-white placeholder-white/50 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+        />
+      </div>
 
         <button
           type="submit"
