@@ -20,6 +20,36 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
+// 1.5 Search users by username or email
+exports.searchUsers = async (req, res) => {
+    try {
+        const { query } = req.params;
+        
+        if (!query || query.trim().length === 0) {
+            return res.status(400).json({ message: "Search query is required" });
+        }
+
+        // Use LIKE for partial matching, with % wildcards
+        const searchQuery = `
+            SELECT u.id, u.username, u.email, u.role, 
+                   s.status as subscription_status, 
+                   s.end_date as subscription_expiry
+            FROM users u
+            LEFT JOIN subscriptions s ON u.id = s.user_id
+            WHERE u.username LIKE ? OR u.email LIKE ?
+            LIMIT 50
+        `;
+        
+        const searchTerm = `%${query}%`;
+        const [users] = await db.query(searchQuery, [searchTerm, searchTerm]);
+        
+        res.json(users);
+    } catch (err) {
+        console.error("SEARCH USERS ERROR:", err);
+        res.status(500).json({ message: "Failed to search users", error: err.message });
+    }
+};
+
 // 2. Manage Subscription (Targets the 'subscriptions' table)
 exports.updateSubscription = async (req, res) => {
     const { id } = req.params; // user_id
@@ -86,7 +116,7 @@ exports.updateUserRole = async (req, res) => {
 // 4. Get All Signals
 exports.getAllSignals = async (req, res) => {
     try {
-        const [signals] = await db.query("SELECT * FROM signals ORDER BY created_at DESC");
+        const [signals] = await db.query("SELECT id, pair, direction, entry_price, stop_loss, take_profit, notes, is_approved, created_at FROM signals ORDER BY created_at DESC LIMIT 1000");
         res.json(signals);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -149,7 +179,7 @@ exports.toggleApproval = async (req, res) => {
         // If signal is approved, fetch it and send emails to all active subscribers
         if (is_approved) {
             // Get the signal details
-            const [signals] = await db.query("SELECT * FROM signals WHERE id = ?", [id]);
+            const [signals] = await db.query("SELECT id, pair, direction, entry_price, stop_loss, take_profit, notes, is_approved, created_at FROM signals WHERE id = ?", [id]);
             if (signals.length === 0) {
                 return res.status(404).json({ message: "Signal not found" });
             }

@@ -65,7 +65,7 @@ exports.getAllSignals = async (req, res) => {
 
         // 2. Admin always has access
         if (role === 'admin') {
-            const [signals] = await db.query("SELECT * FROM signals ORDER BY created_at DESC");
+            const [signals] = await db.query("SELECT id, pair, direction, entry_price, stop_loss, take_profit, notes, is_approved, created_at FROM signals ORDER BY created_at DESC LIMIT 1000");
             return res.json(signals);
         }
 
@@ -80,7 +80,7 @@ exports.getAllSignals = async (req, res) => {
         }
 
         // 4. Return live signals for active users [cite: 30]
-        const [signals] = await db.query("SELECT * FROM signals WHERE is_approved = 1 ORDER BY created_at DESC");
+        const [signals] = await db.query("SELECT id, pair, direction, entry_price, stop_loss, take_profit, notes, is_approved, created_at FROM signals WHERE is_approved = 1 ORDER BY created_at DESC LIMIT 1000");
         res.json(signals);
 
     } catch (err) {

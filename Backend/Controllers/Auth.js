@@ -5,6 +5,32 @@ const jwt = require('jsonwebtoken');
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
     try {
+    
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        
+        if (username.includes(' ')) {
+            return res.status(400).json({ message: "Username cannot contain spaces" });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
+        
+        if (password.length < 6) {
+            return res.status(400).json({ message: "Password must be at least 6 characters long" });
+        }
+
+      const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+
+     if (!specialCharRegex.test(password)) {
+        return res.status(400).json({message: "Password must contain at least one special character"});
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         // Insert user and create a placeholder subscription
         const [result] = await db.query(
@@ -17,6 +43,9 @@ exports.register = async (req, res) => {
 
         res.status(201).json({ message: "User registered successfully" });
     } catch (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ message: "Username or email already exists" });
+        }
         res.status(500).json({ error: err.message });
     }
 };
@@ -24,7 +53,18 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     try {
-        const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        // Validate input
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
+        const [users] = await db.query('SELECT id, username, email, password_hash, role FROM users WHERE email = ?', [email]);
         if (users.length === 0) return res.status(404).json({ message: "User not found" });
 
         const user = users[0];

@@ -13,7 +13,7 @@ exports.askAssistant = async (req, res) => {
             contents: [
                 {
                     role: "user",
-                    parts: [{ text: `You are the Shadow Howl AI Coach. Answer this: ${prompt}. MANDATORY: End with 'This is not financial advice. Trade at your own risk.'` }]
+                    parts: [{ text: `You are Shadow Howl's charismatic AI Forex Coach. Answer this briefly: ${prompt}. MANDATORY: End with 'This is not financial advice. Trade at your own risk.'` }]
                 }
             ]
         });

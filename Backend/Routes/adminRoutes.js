@@ -10,6 +10,7 @@ router.use(checkRole('admin'));
 
 // --- User Management ---
 router.get('/users', adminController.getAllUsers);
+router.get('/users/search/:query', adminController.searchUsers);
 
 // frontend calls: /api/admin/users/:id/status (matches Admin.jsx handleUserToggle)
 router.patch('/users/:id/status', adminController.updateSubscription); 

@@ -309,6 +309,7 @@ const Admin = () => {
   const [editingSignal, setEditingSignal] = useState(null);
   const [loading, setLoading] = useState(false);
   const [processingSignalId, setProcessingSignalId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const API_URL = import.meta.env.VITE_API_URL;
   
@@ -340,6 +341,33 @@ const Admin = () => {
   useEffect(() => { 
     fetchData(); 
   }, [fetchData]);
+
+  const handleSearch = async (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    if (!query.trim()) {
+      // If search is empty, fetch all users
+      fetchData();
+      return;
+    }
+
+    setLoading(true);
+    const headers = { 
+      'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      'Content-Type': 'application/json'
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/api/admin/users/search/${encodeURIComponent(query)}`, { headers });
+      const data = await res.json();
+      setUsers(data);
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEditClick = useCallback((signal) => {
     setEditingSignal(signal);
@@ -423,18 +451,43 @@ const Admin = () => {
     return { approvedSignals: approved, pendingSignals: pending };
   }, [signals]);
 
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.clear();
+    
+    // Overwrite with random placeholders to prevent data recovery
+    localStorage.setItem('token', 'placeholder_' + Math.random().toString(36).substr(2, 9));
+    localStorage.setItem('role', 'placeholder_' + Math.random().toString(36).substr(2, 9));
+    localStorage.setItem('subscription_status', 'placeholder_' + Math.random().toString(36).substr(2, 9));
+    localStorage.setItem('_session_cleared', new Date().toISOString());
+    
+    // Clear and redirect
+    setTimeout(() => {
+      localStorage.clear();
+      window.location.href = '/login';
+    }, 100);
+  };
+
   return (
     <div className="p-8 bg-slate-900 min-h-screen text-white font-sans">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Shield className="text-blue-500" size={32} /> Admin Center
         </h1>
-        {loading && (
-          <div className="flex items-center gap-2 text-slate-400">
-            <Loader2 size={20} className="animate-spin" />
-            <span className="text-sm">Loading...</span>
-          </div>
-        )}
+        <div className="flex items-center gap-4">
+          {loading && (
+            <div className="flex items-center gap-2 text-slate-400">
+              <Loader2 size={20} className="animate-spin" />
+              <span className="text-sm">Loading...</span>
+            </div>
+          )}
+          <button
+            onClick={handleLogout}
+            className="text-xs border border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg transition-all"
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-4 mb-6 border-b border-white/10">
@@ -455,7 +508,19 @@ const Admin = () => {
 
       <div className="bg-slate-800/50 rounded-2xl border border-white/5 p-6 min-h-[500px]">
         {activeTab === 'users' && (
-          <div className="overflow-x-auto">
+          <div>
+            {/* Search Bar */}
+            <div className="mb-6">
+              <input
+                type="text"
+                placeholder="Search users by username or email..."
+                value={searchQuery}
+                onChange={handleSearch}
+                className="w-full bg-black/40 border border-white/10 p-4 rounded-xl text-white placeholder-white/40 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+              />
+            </div>
+
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-slate-400 text-sm uppercase">
@@ -518,6 +583,7 @@ const Admin = () => {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         )}
 
