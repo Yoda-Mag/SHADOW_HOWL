@@ -83,6 +83,9 @@ const handleJWTExpiredError = () => {
 const errorHandler = (err, req, res, _next) => {
   err.statusCode = err.statusCode || 500;
 
+  // Reference _next so linters don't flag it as unused; do NOT call it.
+  void _next;
+
   // Log the error
   logError(err);
 
