@@ -4,7 +4,7 @@
  * This guide shows how to use the custom exception classes
  * to handle errors gracefully in your controllers
  */
-/* eslint-disable no-unused-vars, no-undef, no-console */
+/* eslint-disable no-unused-vars, no-undef */
 
 // ============================================
 // EXAMPLE 1: Validation Error
