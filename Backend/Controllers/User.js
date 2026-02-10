@@ -1,37 +1,22 @@
+// Controller reserved for user-facing actions. Administrative user-list and
+// subscription management moved to `Controllers/Admin.js` to avoid duplication.
+// Keep this file minimal and focused on user-specific endpoints.
+
 const db = require('../Config/Database');
 
-exports.updateSubscription = async (req, res) => {
+// Example: get current user's profile
+exports.getProfile = async (req, res) => {
     try {
-        const { userId, status, days } = req.body; 
-        // status: 'active', 'expired', etc.
-        // days: number of days to add (e.g., 365 for annual) [cite: 44]
+        const userId = req.user && req.user.id;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-        let expiryDate = null;
-        if (status === 'active') {
-            expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + parseInt(days));
-        }
-
-        const query = `
-            UPDATE users 
-            SET subscription_status = ?, subscription_expiry = ? 
-            WHERE id = ?
-        `;
-
-        await db.query(query, [status, expiryDate, userId]);
-        res.json({ success: true, message: `User subscription set to ${status}` });
+        const query = `SELECT id, username, email, role, subscription_status, subscription_expiry FROM users WHERE id = ?`;
+        const [rows] = await db.query(query, [userId]);
+        const user = rows[0] || null;
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};
-
-// Admin can see all users to manage their access
-exports.getAllUsers = async (req, res) => {
-    try {
-        const query = "SELECT id, username, email, role, subscription_status, subscription_expiry FROM users";
-        const [users] = await db.query(query);
-        res.json(users);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('getProfile error:', err);
+        res.status(500).json({ message: 'Failed to load profile' });
     }
 };

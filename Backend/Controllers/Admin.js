@@ -52,7 +52,9 @@ exports.searchUsers = async (req, res) => {
 
 // 2. Manage Subscription (Targets the 'subscriptions' table)
 exports.updateSubscription = async (req, res) => {
-    const { id } = req.params; // user_id
+    // Support both routes: /api/admin/users/:id/status (params) and
+    // /api/users/subscription (body.userId). Use whichever is provided.
+    const id = req.params && req.params.id ? req.params.id : req.body.userId;
     const { status, expiryDays = 30 } = req.body; 
     
     try {
@@ -101,17 +103,7 @@ exports.updateSubscription = async (req, res) => {
     }
 };
 
-// 3. Manage User Role
-exports.updateUserRole = async (req, res) => {
-    const { id } = req.params;
-    const { newRole } = req.body;
-    try {
-        await db.query("UPDATE users SET role = ? WHERE id = ?", [newRole, id]);
-        res.json({ message: `User role updated to ${newRole}` });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};
+
 
 // 4. Get All Signals
 exports.getAllSignals = async (req, res) => {
