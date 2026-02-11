@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyOTP from './pages/VerifyOTP';
 import Feed from './pages/Feed';
 import Chat from './pages/Chat';
 import Admin from './pages/Admin';
@@ -29,6 +30,7 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/verify-otp" element={<VerifyOTP />} />
                 <Route path="/restricted" element={<Restricted />} />
 
                 {/* Subscriber Routes */}

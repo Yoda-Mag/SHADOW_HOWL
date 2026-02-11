@@ -25,23 +25,51 @@ const Register = () => {
         }
 
         try {
-            await axios.post('http://localhost:5000/api/auth/register', {
+            const response = await axios.post('http://localhost:5000/api/auth/register', {
                 username: formData.username,
                 email: formData.email,
                 password: formData.password
             });
-            alert("Registration successful! Please login.");
-            navigate('/login');
+
+            // If OTP verification is required, redirect to verification page
+            if (response.data.requiresOTPVerification) {
+                navigate('/verify-otp', {
+                    state: {
+                        email: formData.email,
+                        username: formData.username,
+                        password: formData.password
+                    }
+                });
+            } else {
+                alert("Registration successful! Please login.");
+                navigate('/login');
+            }
         } catch (err) {
             alert(err.response?.data?.message || "Registration failed");
         }
     };
 
+    // Fallback SVG for onError
+    const fallbackSVG = `data:image/svg+xml;utf8,${encodeURIComponent(`
+        <svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'>
+          <rect width='100%' height='100%' fill='#000' rx='12' />
+          <text x='50%' y='52%' fill='#fff' font-family='Verdana, Arial, sans-serif' font-size='54' font-weight='700' text-anchor='middle' alignment-baseline='middle'>SH</text>
+        </svg>
+    `)}`;
+
     return (
         <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
             <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl">
                 <div className="flex justify-center mb-6">
-                    <img src="/ShadowHowlLogo.jpeg" alt="Shadow Howl Logo" className="h-20 w-20 object-contain rounded-lg" />
+                    <img
+                        src="/ShadowHowlLogo.jpeg"
+                        alt="Shadow Howl Logo"
+                        className="h-20 w-20 object-contain rounded-lg"
+                        onError={(e) => { 
+                            e.currentTarget.onerror = null; // Prevent infinite loop
+                            e.currentTarget.src = fallbackSVG; 
+                        }}
+                    />
                 </div>
                 <h2 className="text-3xl font-bold text-center mb-2 text-white">JOIN THE PACK</h2>
                 <p className="text-zinc-500 text-center mb-8 uppercase tracking-widest text-xs">Create your Shadow Howl account</p>

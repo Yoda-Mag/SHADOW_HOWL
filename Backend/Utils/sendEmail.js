@@ -56,4 +56,5 @@ const sendSignalEmail = async (userEmail, signalDetails) => {
     }
 };
 
+
 module.exports = sendSignalEmail;
