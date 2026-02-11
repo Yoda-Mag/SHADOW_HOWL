@@ -16,7 +16,7 @@ const ForgotPassword = () => {
         setMessage('');
 
         try {
-            // FIX: Removed 'const response =' because it was unused
+        
             await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
             
             setMessage('Reset OTP sent to your email');

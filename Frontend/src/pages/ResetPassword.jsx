@@ -57,7 +57,8 @@ const ResetPassword = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/reset-password', {
+            // FIX: Removed 'const response =' to clear the 'unused variable' error
+            await axios.post('http://localhost:5000/api/auth/reset-password', {
                 email,
                 otp,
                 newPassword
@@ -117,7 +118,6 @@ const ResetPassword = () => {
                 </p>
 
                 <form onSubmit={handleResetPassword} className="space-y-4">
-                    {/* OTP Input */}
                     <div>
                         <label className="block text-zinc-400 text-sm mb-2">Reset Code</label>
                         <input
@@ -131,7 +131,6 @@ const ResetPassword = () => {
                         />
                     </div>
 
-                    {/* New Password Input */}
                     <div>
                         <label className="block text-zinc-400 text-sm mb-2">New Password</label>
                         <input
@@ -145,7 +144,6 @@ const ResetPassword = () => {
                         />
                     </div>
 
-                    {/* Confirm Password Input */}
                     <div>
                         <label className="block text-zinc-400 text-sm mb-2">Confirm Password</label>
                         <input
@@ -159,7 +157,6 @@ const ResetPassword = () => {
                         />
                     </div>
 
-                    {/* Message */}
                     {message && (
                         <div
                             className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
@@ -173,7 +170,6 @@ const ResetPassword = () => {
                         </div>
                     )}
 
-                    {/* Reset Button */}
                     <button
                         type="submit"
                         disabled={isLoading || otp.length !== 6 || !newPassword || !confirmPassword}
@@ -183,9 +179,9 @@ const ResetPassword = () => {
                     </button>
                 </form>
 
-                {/* Resend OTP */}
                 <div className="mt-6 text-center text-sm text-zinc-500">
-                    Didn't receive code?{' '}
+                    {/* FIX: Wrapped text in {} to handle the apostrophe in "Didn't" */}
+                    {"Didn't receive code? "}{' '}
                     <button
                         onClick={handleResendOTP}
                         disabled={resendTimer > 0 || isLoading}
