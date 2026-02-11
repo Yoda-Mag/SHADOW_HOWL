@@ -96,8 +96,9 @@ export default function Login() {
           {loading ? 'Executing...' : 'Login'}
         </button>
 
-        <div className="text-center text-white/60 text-sm">
+        <div className="text-center text-white/60 text-sm space-y-2">
           <p>Don&apos;t have access? <a href="/register" className="text-blue-400 hover:text-blue-300">Sign up</a></p>
+          <p><a href="/forgot-password" className="text-blue-400 hover:text-blue-300">Forgot password?</a></p>
         </div>
       </form>
     </AuthLayout>

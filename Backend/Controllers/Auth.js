@@ -195,3 +195,89 @@ exports.resendOTP = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+/**
+ * Forgot Password - Send OTP to user email
+ */
+exports.forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: "Invalid email format" });
+        }
+
+        // Check if user exists
+        const [users] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
+        if (users.length === 0) {
+            return res.status(404).json({ message: "No account found with this email" });
+        }
+
+        // Send OTP for password reset
+        try {
+            await sendOTP(email, transporter);
+        } catch (otpErr) {
+            console.error('OTP sending failed:', otpErr);
+            return res.status(500).json({ 
+                error: 'Failed to send reset OTP. Please try again.',
+                details: otpErr.message
+            });
+        }
+
+        res.json({ 
+            message: "Password reset OTP sent to your email",
+            success: true,
+            email: email
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+/**
+ * Reset Password - Verify OTP and update password
+ */
+exports.resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    try {
+        if (!email || !otp || !newPassword) {
+            return res.status(400).json({ message: "Email, OTP, and new password are required" });
+        }
+
+        // Validate password strength
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: "Password must be at least 6 characters long" });
+        }
+
+        const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+        if (!specialCharRegex.test(newPassword)) {
+            return res.status(400).json({ message: "Password must contain at least one special character" });
+        }
+
+        // Verify OTP
+        const otpResult = verifyOTP(email, otp);
+        if (!otpResult.success) {
+            return res.status(400).json({ message: otpResult.message });
+        }
+
+        // Hash new password and update
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await db.query('UPDATE users SET password_hash = ? WHERE email = ?', [hashedPassword, email]);
+
+        // Clear OTP from store
+        clearOTP(email);
+
+        res.json({ 
+            message: "Password reset successfully. Please login with your new password.",
+            success: true
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
