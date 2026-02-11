@@ -33,7 +33,7 @@ const VerifyOTP = () => {
         }
 
         try {
-            // FIX: Removed 'const response =' as it was unused (Error 3)
+
             await axios.post('http://localhost:5000/api/auth/verify-otp', {
                 email,
                 otp,

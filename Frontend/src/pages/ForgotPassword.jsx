@@ -9,7 +9,6 @@ const ForgotPassword = () => {
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [otpSent, setOtpSent] = useState(false);
 
     const handleForgotPassword = async (e) => {
         e.preventDefault();
@@ -17,11 +16,11 @@ const ForgotPassword = () => {
         setMessage('');
 
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+            // FIX: Removed 'const response =' because it was unused
+            await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
             
             setMessage('Reset OTP sent to your email');
             setIsError(false);
-            setOtpSent(true);
 
             // Redirect to reset password page after 2 seconds
             setTimeout(() => {
@@ -44,11 +43,11 @@ const ForgotPassword = () => {
 
                 <h2 className="text-3xl font-bold text-center mb-2 text-white">Forgot Password?</h2>
                 <p className="text-zinc-500 text-center mb-6 text-sm">
-                    Enter your email address and we'll send you a code to reset your password
+                    {/* FIX: Wrapped text in {} to handle the apostrophe in "we'll" */}
+                    {"Enter your email address and we'll send you a code to reset your password"}
                 </p>
 
                 <form onSubmit={handleForgotPassword} className="space-y-4">
-                    {/* Email Input */}
                     <div>
                         <label className="block text-zinc-400 text-sm mb-2">Email Address</label>
                         <input
@@ -62,7 +61,6 @@ const ForgotPassword = () => {
                         />
                     </div>
 
-                    {/* Message */}
                     {message && (
                         <div
                             className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
@@ -76,7 +74,6 @@ const ForgotPassword = () => {
                         </div>
                     )}
 
-                    {/* Submit Button */}
                     <button
                         type="submit"
                         disabled={isLoading || !email}
@@ -86,7 +83,6 @@ const ForgotPassword = () => {
                     </button>
                 </form>
 
-                {/* Links */}
                 <div className="mt-6 text-center text-sm text-zinc-500 space-y-2">
                     <p>
                         Remember your password?{' '}
@@ -95,7 +91,8 @@ const ForgotPassword = () => {
                         </Link>
                     </p>
                     <p>
-                        Don't have an account?{' '}
+                        {/* FIX: Wrapped text in {} to handle the apostrophe in "Don't" */}
+                        {"Don't have an account? "}{' '}
                         <Link to="/register" className="text-blue-500 hover:underline">
                             Register here
                         </Link>
