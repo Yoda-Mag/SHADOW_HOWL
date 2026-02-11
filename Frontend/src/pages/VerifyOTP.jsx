@@ -33,7 +33,8 @@ const VerifyOTP = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/api/auth/verify-otp', {
+            // FIX: Removed 'const response =' as it was unused (Error 3)
+            await axios.post('http://localhost:5000/api/auth/verify-otp', {
                 email,
                 otp,
                 username,
@@ -89,12 +90,12 @@ const VerifyOTP = () => {
 
                 <h2 className="text-3xl font-bold text-center mb-2 text-white">Verify Email</h2>
                 <p className="text-zinc-500 text-center mb-6 text-sm">
-                    We've sent a 6-digit OTP to<br />
+                    {/* FIX: Wrapped text in {} to escape apostrophe (Error 1) */}
+                    {"We've sent a 6-digit OTP to"}<br />
                     <span className="text-blue-400 font-semibold">{email}</span>
                 </p>
 
                 <form onSubmit={handleVerifyOTP} className="space-y-4">
-                    {/* OTP Input */}
                     <div>
                         <label className="block text-zinc-400 text-sm mb-2">Enter OTP</label>
                         <input
@@ -108,7 +109,6 @@ const VerifyOTP = () => {
                         />
                     </div>
 
-                    {/* Message */}
                     {message && (
                         <div
                             className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
@@ -122,7 +122,6 @@ const VerifyOTP = () => {
                         </div>
                     )}
 
-                    {/* Verify Button */}
                     <button
                         type="submit"
                         disabled={isLoading || otp.length !== 6}
@@ -132,9 +131,9 @@ const VerifyOTP = () => {
                     </button>
                 </form>
 
-                {/* Resend OTP */}
                 <div className="mt-6 text-center text-sm text-zinc-500">
-                    Didn't receive OTP?{' '}
+                    {/* FIX: Wrapped text in {} to escape apostrophe (Error 2) */}
+                    {"Didn't receive OTP? "}{' '}
                     <button
                         onClick={handleResendOTP}
                         disabled={resendTimer > 0 || isLoading}
