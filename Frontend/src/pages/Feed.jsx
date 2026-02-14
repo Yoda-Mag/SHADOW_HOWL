@@ -50,7 +50,7 @@ export default function Feed() {
 const [input, setInput] = useState('');
 const [chatOpen, setChatOpen] = useState(false);
 const [messages, setMessages] = useState([
-  { role: 'system', content: 'SadowHowl AI Coach v1.0 connected. How can I assist with the data stream?' }
+  { role: 'system', content: 'ShadowHowl AI Coach v1.0 connected. How can I assist with the data stream?' }
 ]);
 
 const sendMessage = async (e) => {
