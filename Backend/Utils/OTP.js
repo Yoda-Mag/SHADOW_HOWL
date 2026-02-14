@@ -33,7 +33,7 @@ const sendOTP = async (email) => {
     });
 
     // Send OTP via Resend HTTP API
-    const result = await axios.post('https://api.resend.com/emails', {
+    await axios.post('https://api.resend.com/emails', {
       from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to: email,
       subject: 'Shadow Howl - Email Verification OTP',
