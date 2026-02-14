@@ -1,23 +1,7 @@
 const db = require('../Config/Database'); //Go up one level,then COnfig
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const nodeMailer = require('nodemailer');
-require('dotenv').config();
 const { sendOTP, verifyOTP, clearOTP } = require('../Utils/OTP');
-
-// Create transporter for email
-const transporter = nodeMailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
-});
 
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
@@ -60,7 +44,7 @@ exports.register = async (req, res) => {
 
         // Send OTP to email for verification
         try {
-            await sendOTP(email, transporter);
+            await sendOTP(email);
         } catch (otpErr) {
             console.error('OTP sending failed:', otpErr);
             return res.status(500).json({ 
@@ -189,7 +173,7 @@ exports.resendOTP = async (req, res) => {
         }
 
         // Send new OTP
-        const result = await sendOTP(email, transporter);
+        const result = await sendOTP(email);
         res.json(result);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -220,7 +204,7 @@ exports.forgotPassword = async (req, res) => {
 
         // Send OTP for password reset
         try {
-            await sendOTP(email, transporter);
+            await sendOTP(email);
         } catch (otpErr) {
             console.error('OTP sending failed:', otpErr);
             return res.status(500).json({ 

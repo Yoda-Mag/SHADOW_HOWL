@@ -3,6 +3,8 @@
  * Used for email verification during registration
  */
 
+const axios = require('axios');
+
 // In-memory storage for OTPs (use Redis in production)
 const otpStore = new Map();
 
@@ -16,10 +18,9 @@ const generateOTP = () => {
 /**
  * Send OTP to user email and store it
  * @param {string} email - User's email address
- * @param {object} transporter - Nodemailer transporter instance
  * @returns {object} - { success, expiresIn, message }
  */
-const sendOTP = async (email, transporter) => {
+const sendOTP = async (email) => {
   try {
     const otp = generateOTP();
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
@@ -31,9 +32,9 @@ const sendOTP = async (email, transporter) => {
       attempts: 0
     });
 
-    // Send OTP via email using transporter
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
+    // Send OTP via Resend HTTP API
+    const result = await axios.post('https://api.resend.com/emails', {
+      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
       to: email,
       subject: 'Shadow Howl - Email Verification OTP',
       html: `
@@ -46,9 +47,12 @@ const sendOTP = async (email, transporter) => {
           <p style="color: #999; font-size: 12px;">Never share your OTP with anyone.</p>
         </div>
       `
-    };
-
-    await transporter.sendMail(mailOptions);
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
     return {
       success: true,
@@ -56,7 +60,7 @@ const sendOTP = async (email, transporter) => {
       expiresIn: 600 // 10 minutes in seconds
     };
   } catch (err) {
-    console.error('Error sending OTP:', err);
+    console.error('Error sending OTP:', err.response?.data || err.message);
     throw err;
   }
 };
