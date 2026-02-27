@@ -21,6 +21,11 @@
     "mysql2": "^3.16.0",
     "resend": "^6.9.2"
   },
+  "scripts": {
+    "test": "echo \"No tests specified yet\"",
+    "start": "node server.js",
+    "lint": "eslint ."
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "eslint": "^9.39.2",
