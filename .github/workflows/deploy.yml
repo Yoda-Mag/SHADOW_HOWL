@@ -1,0 +1,37 @@
+name: Deploy Shadow Howl
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # JOB 1: The Gatekeeper
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          cd Backend && npm install
+          cd ../Frontend && npm install
+      - name: Run Linting/Tests
+        run: |
+          cd Backend && npm run lint # Or npm test
+          cd ../Frontend && npm run lint
+
+  # JOB 2: The Mover (Only runs if 'test' succeeds)
+  deploy:
+    needs: test  # This ensures 'deploy' only runs if 'test' is successful
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into server and update
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/SHADOW_HOWL
+            git pull origin main
+            cd Backend && npm install && pm2 restart shadowhowl-backend
+            cd ../Frontend && npm install && npm run build
