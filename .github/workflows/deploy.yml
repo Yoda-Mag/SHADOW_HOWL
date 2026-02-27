@@ -34,4 +34,4 @@ jobs:
             cd ~/SHADOW_HOWL
             git pull origin main
             cd Backend && npm install && pm2 restart shadowhowl-backend
-            cd ../Frontend && npm install && npm run build
+            cd ../Frontend && npm install --legacy-peer-deps && npm run build
