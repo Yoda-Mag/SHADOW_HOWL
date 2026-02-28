@@ -68,29 +68,36 @@ exports.register = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
-
 exports.login = async (req, res) => {
     const { email, password } = req.body;
     try {
-        // Validate input
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" });
         }
 
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email format" });
-        }
-
-        const [users] = await db.query('SELECT id, username, email, password_hash, role FROM users WHERE email = ?', [email]);
+        // 1. Get the user - Using 'password' as the column name based on your DB check
+        const [users] = await db.query('SELECT id, username, email, password, role FROM users WHERE email = ?', [email]);
+        
         if (users.length === 0) return res.status(404).json({ message: "User not found" });
 
         const user = users[0];
-        const isMatch = await bcrypt.compare(password, user.password_hash);
+
+        // 2. Hybrid Password Check (Plain text OR Hashed)
+        // We use user.password because that's what's in your DB
+        let isMatch = (password === user.password); 
+        
+        if (!isMatch) {
+            try {
+                // If plain text fails, try bcrypt as a backup
+                isMatch = await bcrypt.compare(password, user.password);
+            } catch (e) {
+                isMatch = false;
+            }
+        }
+
         if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-        // Get subscription status
+        // 3. Subscription Check
         const [subscriptions] = await db.query('SELECT status FROM subscriptions WHERE user_id = ?', [user.id]);
         const subscriptionStatus = subscriptions.length > 0 ? subscriptions[0].status : 'expired';
 
@@ -102,6 +109,7 @@ exports.login = async (req, res) => {
 
         res.json({ 
             token, 
+            role: user.role, // Sending role directly for easier frontend access
             user: { 
                 id: user.id, 
                 username: user.username, 
@@ -110,6 +118,7 @@ exports.login = async (req, res) => {
             } 
         });
     } catch (err) {
+        console.error("Login Error:", err);
         res.status(500).json({ error: err.message });
     }
 };

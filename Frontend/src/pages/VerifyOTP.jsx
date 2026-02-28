@@ -34,7 +34,7 @@ const VerifyOTP = () => {
 
         try {
 
-            await axios.post('http://localhost:5000/api/auth/verify-otp', {
+            await axios.post('/api/auth/verify-otp', {
                 email,
                 otp,
                 username,
@@ -59,7 +59,7 @@ const VerifyOTP = () => {
     const handleResendOTP = async () => {
         try {
             setIsLoading(true);
-            await axios.post('http://localhost:5000/api/auth/resend-otp', { email });
+            await axios.post('/api/auth/resend-otp', { email });
             setMessage('OTP resent to your email');
             setIsError(false);
             setResendTimer(60);

@@ -63,7 +63,7 @@ const sendMessage = async (e) => {
   setInput('');
 
   try {
-    const response = await fetch('http://localhost:5000/api/chat/ask', {
+    const response = await fetch('/api/chat/ask', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',

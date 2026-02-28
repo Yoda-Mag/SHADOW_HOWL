@@ -58,7 +58,7 @@ const ResetPassword = () => {
 
         try {
             // FIX: Removed 'const response =' to clear the 'unused variable' error
-            await axios.post('http://localhost:5000/api/auth/reset-password', {
+            await axios.post('/api/auth/reset-password', {
                 email,
                 otp,
                 newPassword
@@ -82,7 +82,7 @@ const ResetPassword = () => {
     const handleResendOTP = async () => {
         try {
             setIsLoading(true);
-            await axios.post('http://localhost:5000/api/auth/resend-otp', { email });
+            await axios.post('/api/auth/resend-otp', { email });
             setMessage('Reset code resent to your email');
             setIsError(false);
             setResendTimer(60);

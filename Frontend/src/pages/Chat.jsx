@@ -41,8 +41,8 @@ export default function Chat() {
         body: JSON.stringify({ prompt: userMessage })
       };
 
-      console.log('Fetching from:', 'http://localhost:5000/api/chat/ask');
-      const response = await fetch('http://localhost:5000/api/chat/ask', requestOptions);
+      console.log('Fetching from:', '/api/chat/ask');
+      const response = await fetch('/api/chat/ask', requestOptions);
       
       console.log('Response status:', response.status);
       
