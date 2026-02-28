@@ -38,8 +38,12 @@ const verifyOTPLogic = (email, otp) => {
     return { success: true };
 };
 
+const clearOTP = (email) => {
+    otpStore.delete(email);
+};
+
 module.exports = {
   sendOTP,
-  verifyOTPLogic, // Ensure this has "Logic" at the end
+  verifyOTPLogic, 
   clearOTP
 };
