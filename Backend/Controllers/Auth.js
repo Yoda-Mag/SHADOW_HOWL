@@ -91,6 +91,7 @@ exports.login = async (req, res) => {
                 // If plain text fails, try bcrypt as a backup
                 isMatch = await bcrypt.compare(password, user.password);
             } catch (err) {
+                console.error("Login error:", err);
                 isMatch = false;
             }
         }
