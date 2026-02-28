@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import {AuthLayout} from '../layout/authLayout';
+import AuthLayout from '../layout/authLayout';
 
 export default function Login() {
   const [email, setEmail] = useState('');
