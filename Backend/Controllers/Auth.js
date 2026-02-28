@@ -159,7 +159,7 @@ exports.verifyOTP = async (req, res) => {
         console.error("Verify Error:", err);
         res.status(500).json({ error: "Database error during registration" });
     }
-};
+}
 
 /**
  * Reset Password - Verify OTP and update password
@@ -190,7 +190,7 @@ exports.resetPassword = async (req, res) => {
 
         // Hash new password and update
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await db.query('UPDATE users SET password_hash = ? WHERE email = ?', [hashedPassword, email]);
+        await db.query('UPDATE users SET password = ? WHERE email = ?', [hashedPassword, email]);
 
         // Clear OTP from store
         clearOTP(email);
@@ -202,4 +202,50 @@ exports.resetPassword = async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+    exports.resendOTP = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        await sendOTP(email);
+
+        res.json({ message: "OTP resent successfully" });
+    } catch (err) {
+        console.error("Resend OTP Error:", err);
+        res.status(500).json({ message: "Failed to resend OTP" });
+    }
+};
+
+
+/**
+ * Forgot Password - Send OTP
+ */
+exports.forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const [users] = await db.query(
+            'SELECT id FROM users WHERE email = ?',
+            [email]
+        );
+
+        if (users.length === 0) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await sendOTP(email);
+
+        res.json({ message: "OTP sent for password reset" });
+    } catch (err) {
+        console.error("Forgot Password Error:", err);
+        res.status(500).json({ message: "Failed to send OTP" });
+    }
+};
 };
