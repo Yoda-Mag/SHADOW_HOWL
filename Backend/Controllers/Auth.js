@@ -1,7 +1,7 @@
 const db = require('../Config/Database'); //Go up one level,then COnfig
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { sendOTP, verifyOTP, clearOTP } = require('../Utils/OTP');
+const { sendOTP, verifyOTPLogic, clearOTP } = require('../Utils/OTP');
 
 exports.register = async (req, res) => {
     const { username, email, password } = req.body;
@@ -183,7 +183,7 @@ exports.resetPassword = async (req, res) => {
         }
 
         // Verify OTP
-        const otpResult = verifyOTP(email, otp);
+        const otpResult = verifyOTPLogic(email, otp);
         if (!otpResult.success) {
             return res.status(400).json({ message: otpResult.message });
         }

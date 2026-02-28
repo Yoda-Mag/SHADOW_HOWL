@@ -38,4 +38,8 @@ const verifyOTPLogic = (email, otp) => {
     return { success: true };
 };
 
-module.exports = { sendOTP, verifyOTPLogic };
+module.exports = {
+  sendOTP,
+  verifyOTPLogic, // Ensure this has "Logic" at the end
+  clearOTP
+};
