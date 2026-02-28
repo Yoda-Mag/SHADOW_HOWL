@@ -90,7 +90,7 @@ exports.login = async (req, res) => {
             try {
                 // If plain text fails, try bcrypt as a backup
                 isMatch = await bcrypt.compare(password, user.password);
-            } catch (e) {
+            } catch (err) {
                 isMatch = false;
             }
         }
