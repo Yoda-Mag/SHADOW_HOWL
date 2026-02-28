@@ -18,7 +18,7 @@ export default function Feed() {
         }
 
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/signals', {
+        const response = await fetch('/api/signals', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
