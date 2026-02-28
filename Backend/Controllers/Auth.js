@@ -131,105 +131,33 @@ exports.verifyOTP = async (req, res) => {
     const { email, otp, username, password } = req.body;
 
     try {
+        // 1. Basic validation
         if (!email || !otp || !username || !password) {
-            return res.status(400).json({ message: "Email, OTP, username, and password are required" });
+            return res.status(400).json({ message: "Registration data missing. Try again." });
         }
 
-        // Verify OTP
-        const otpResult = verifyOTP(email, otp);
+        // 2. Use Utility to check the code
+        const otpResult = verifyOTPLogic(email, otp);
         if (!otpResult.success) {
             return res.status(400).json({ message: otpResult.message });
         }
 
-        // Hash password and insert user
+        // 3. OTP is valid - Now Save to Database
         const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Use the column 'password' or 'password_hash' based on your DB check
         const [result] = await db.query(
-            'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
+            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
             [username, email, hashedPassword]
         );
 
-        // Initialize subscription record
+        // Initialize subscription
         await db.query('INSERT INTO subscriptions (user_id, status) VALUES (?, "expired")', [result.insertId]);
 
-        // Clear OTP from store
-        clearOTP(email);
-
-        res.status(201).json({ 
-            message: "Email verified and user registered successfully",
-            success: true 
-        });
+        res.status(201).json({ success: true, message: "Registered! Please login." });
     } catch (err) {
-        if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ message: "Username or email already exists" });
-        }
-        res.status(500).json({ error: err.message });
-    }
-};
-
-/**
- * Resend OTP (if user didn't receive it)
- */
-exports.resendOTP = async (req, res) => {
-    const { email } = req.body;
-
-    try {
-        if (!email) {
-            return res.status(400).json({ message: "Email is required" });
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email format" });
-        }
-
-        // Send new OTP
-        const result = await sendOTP(email);
-        res.json(result);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-};
-
-/**
- * Forgot Password - Send OTP to user email
- */
-exports.forgotPassword = async (req, res) => {
-    const { email } = req.body;
-
-    try {
-        if (!email) {
-            return res.status(400).json({ message: "Email is required" });
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return res.status(400).json({ message: "Invalid email format" });
-        }
-
-        // Check if user exists
-        const [users] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
-        if (users.length === 0) {
-            return res.status(404).json({ message: "No account found with this email" });
-        }
-
-        // Send OTP for password reset
-        try {
-            await sendOTP(email);
-        } catch (otpErr) {
-            console.error('OTP sending failed:', otpErr);
-            return res.status(500).json({ 
-                error: 'Failed to send reset OTP. Please try again.',
-                details: otpErr.message
-            });
-        }
-
-        res.json({ 
-            message: "Password reset OTP sent to your email",
-            success: true,
-            email: email
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error("Verify Error:", err);
+        res.status(500).json({ error: "Database error during registration" });
     }
 };
 
