@@ -71,41 +71,35 @@ const sendOTP = async (email) => {
  * @param {string} otp - OTP entered by user
  * @returns {object} - { success, message }
  */
-const verifyOTP = (email, otp) => {
-  const stored = otpStore.get(email);
+exports.verifyOTP = async (req, res) => {
+    const { email, otp, username, password } = req.body;
 
-  if (!stored) {
-    return { success: false, message: 'No OTP found for this email' };
-  }
+    // 1. Check if the frontend actually sent the required data
+    if (!username || !password) {
+        return res.status(400).json({ 
+            message: "Registration session lost. Please go back and register again." 
+        });
+    }
 
-  // Check if OTP has expired
-  if (Date.now() > stored.expiresAt) {
-    otpStore.delete(email);
-    return { success: false, message: 'OTP has expired. Request a new one.' };
-  }
+    try {
+        const otpResult = verifyOTP(email, otp); // Calls your Utility function
+        if (!otpResult.success) {
+            return res.status(400).json({ message: otpResult.message });
+        }
 
-  // Check max attempts (3 attempts)
-  if (stored.attempts >= 3) {
-    otpStore.delete(email);
-    return { success: false, message: 'Maximum OTP attempts exceeded. Request a new one.' };
-  }
+        // 2. The database insert usually fails here if fields are missing
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await db.query(
+            'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
+            [username, email, hashedPassword]
+        );
 
-  // Check if OTP matches
-  if (stored.otp !== otp.toString()) {
-    stored.attempts += 1;
-    return { success: false, message: `Invalid OTP. ${3 - stored.attempts} attempts remaining.` };
-  }
+        res.status(201).json({ success: true, message: "User registered!" });
+    } catch (err) {
+        console.error("Verify Error:", err);
+        res.status(500).json({ error: "Database error during registration" });
+    }
 
-  // OTP verified successfully
-  otpStore.delete(email);
-  return { success: true, message: 'Email verified successfully' };
-};
-
-/**
- * Clear OTP for email (useful after successful registration)
- */
-const clearOTP = (email) => {
-  otpStore.delete(email);
 };
 
 module.exports = {
