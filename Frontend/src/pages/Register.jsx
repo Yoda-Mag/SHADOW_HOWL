@@ -62,8 +62,8 @@ const Register = () => {
             <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl">
                 <div className="flex justify-center mb-6">
                     <img
-                        src="/ShadowHowlLogo.jpeg"
-                        alt="Shadow Howl Logo"
+                        src="Public/ShadowHowlLogo2.jpeg"
+                        //alt="Shadow Howl Logo"
                         className="h-20 w-20 object-contain rounded-lg"
                         onError={(e) => { 
                             e.currentTarget.onerror = null; // Prevent infinite loop
