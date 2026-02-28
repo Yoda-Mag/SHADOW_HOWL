@@ -322,7 +322,7 @@ const Admin = () => {
     
     try {
       if (activeTab === 'users') {
-        const res = await fetch(`${API_URL}/api/admin/users`, { headers });
+        const res = await fetch(`${API_URL}/admin/users`, { headers });
         const data = await res.json();
         setUsers(data);
       } else {
