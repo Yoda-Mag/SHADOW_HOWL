@@ -18,9 +18,34 @@ const {
 } = require('./Middleware/ErrorHandler');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
+// CORS configuration for production
+const corsOptions = {
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://18.134.190.37',
+      'http://18.134.190.37:3000',
+      'http://18.134.190.37:5173',
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://127.0.0.1:5173',
+      'http://127.0.0.1:3000',
+    ];
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
