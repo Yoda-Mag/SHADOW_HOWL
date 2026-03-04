@@ -109,6 +109,8 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <input 
+              id="pair"
+              name="pair"
               placeholder="Pair (BTC/USDT)" 
               className="bg-black/40 border border-white/10 p-3 rounded-lg outline-none text-white focus:border-blue-500/50 transition-colors"
               value={formData.pair}
@@ -118,6 +120,8 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
               disabled={isSubmitting}
             />
             <select 
+              id="direction"
+              name="direction"
               className="bg-black/40 border border-white/10 p-3 rounded-lg outline-none text-white focus:border-blue-500/50 transition-colors"
               value={formData.direction}
               onChange={e => setFormData({...formData, direction: e.target.value})}
@@ -129,6 +133,8 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
           </div>
 
           <input 
+            id="entry_price"
+            name="entry_price"
             type="number" 
             step="any" 
             placeholder="Entry Price" 
@@ -141,6 +147,8 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <input 
+              id="stop_loss"
+              name="stop_loss"
               type="number" 
               step="any"
               placeholder="Stop Loss" 
@@ -151,6 +159,8 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
               disabled={isSubmitting}
             />
             <input 
+              id="take_profit"
+              name="take_profit"
               type="number" 
               step="any"
               placeholder="Take Profit" 
@@ -163,6 +173,8 @@ const SignalModal = ({ isOpen, onClose, onSuccess, initialData }) => {
           </div>
 
           <textarea 
+            id="notes"
+            name="notes"
             placeholder="Notes (optional)" 
             className="w-full bg-black/40 border border-white/10 p-3 rounded-lg text-white resize-none focus:border-blue-500/50 transition-colors outline-none"
             rows="3"
@@ -512,6 +524,8 @@ const Admin = () => {
             {/* Search Bar */}
             <div className="mb-6">
               <input
+                id="userSearch"
+                name="userSearch"
                 type="text"
                 placeholder="Search users by username or email..."
                 value={searchQuery}
