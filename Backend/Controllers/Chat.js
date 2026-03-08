@@ -14,8 +14,8 @@ exports.askAssistant = async (req, res) => {
         const { prompt } = req.body;
 
         const response = await ai.models.generateContent({
-            // Using the Gemini 2.0 Flash model
-            model: "gemini-2.0-flash", 
+            // Using the Gemini 1.5 Flash model (2.0 is no longer available)
+            model: "gemini-1.5-flash", 
             contents: [
                 {
                     role: "user",
