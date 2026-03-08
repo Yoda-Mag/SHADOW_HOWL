@@ -79,7 +79,7 @@ connection.connect((err) => {
 
     // Test 2: Test Query
     console.log('📊 Test 2: Simple Query...');
-    connection.query('SELECT 1 as test', (err, results) => {
+    connection.query('SELECT 1 as test', (err) => {
         if (err) {
             console.log(`  ✗ Query failed: ${err.message}`);
             connection.end();
