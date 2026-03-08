@@ -109,9 +109,9 @@ jobs:
             
             # ===== STEP 5: Restart Backend Service =====
             echo "🚀 Step 5: Starting Backend service..."
-            cd ~/SHADOW_HOWL
+            cd ~/SHADOW_HOWL/Backend
             pm2 delete shadowhowl-backend || true
-            pm2 start Backend/index.js --name shadowhowl-backend
+            pm2 start index.js --name shadowhowl-backend
             pm2 save
             echo "✓ Backend service started"
             echo ""
