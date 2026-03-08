@@ -4,7 +4,7 @@ const { GoogleGenAI } = require("@google/genai");
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
 if (!apiKey) {
-  console.warn('⚠️  GEMINI_API_KEY not found in environment variables. AI features will not work.');
+  console.warn('GEMINI_API_KEY not found in environment variables. AI features will not work.');
 }
 
 const ai = new GoogleGenAI({ apiKey: apiKey });
