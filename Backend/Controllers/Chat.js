@@ -8,8 +8,8 @@ exports.askAssistant = async (req, res) => {
         const { prompt } = req.body;
 
         const response = await ai.models.generateContent({
-            // Using the new stable flash model
-            model: "gemini-3-flash-preview", 
+            // Using the Gemini 2.0 Flash model
+            model: "gemini-2.0-flash", 
             contents: [
                 {
                     role: "user",
