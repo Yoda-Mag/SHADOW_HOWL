@@ -4,13 +4,12 @@ const { GoogleGenAI } = require("@google/genai");
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 
 if (!apiKey) {
-    console.warn(' GEMINI_API_KEY not found. AI features will fail until added to GitHub Secrets.');
+    console.warn('GEMINI_API_KEY not found. AI features will fail until added to GitHub Secrets.');
 }
 
 // 2026 SDK Syntax: Create the AI instance
 const ai = new GoogleGenAI({ 
-    apiKey: apiKey,
-    apiVersion: 'v1' 
+    apiKey: apiKey
 });
 
 exports.askAssistant = async (req, res) => {
@@ -24,10 +23,9 @@ exports.askAssistant = async (req, res) => {
             });
         }
 
-        // 2026 SDK Syntax: Call models.generateContent directly
-        // We use gemini-3-flash for the free tier stability
+        // 2026 SDK Syntax: Use the preview model name to avoid 404
         const result = await ai.models.generateContent({
-            model: "gemini-3-flash", 
+            model: "gemini-3-flash-preview", 
             contents: [{
                 role: "user",
                 parts: [{ 
@@ -36,8 +34,8 @@ exports.askAssistant = async (req, res) => {
             }]
         });
 
-        // Simplified extraction in the new SDK
-        const answer = result.candidates[0].content.parts[0].text;
+        // Use result.text for a clean string extraction in the latest SDK
+        const answer = result.text;
 
         console.log('Successfully generated AI response');
         res.json({ success: true, answer });
@@ -46,7 +44,7 @@ exports.askAssistant = async (req, res) => {
         console.error("Gemini API Error:", err);
         res.status(500).json({ 
             success: false, 
-            error: "AI is currently resting. Please try again later.",
+            error: "The AI is analyzing the charts. Please try again in a moment.",
             details: err.message 
         });
     }
