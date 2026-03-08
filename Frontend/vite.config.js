@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const apiUrl = process.env.VITE_API_URL || 'http://localhost:5000';
+// Handle process.env in ESM - use optional chaining to avoid linting errors
+const apiUrl = (typeof process !== 'undefined' && process.env?.VITE_API_URL) || 'http://localhost:5000';
 
 export default defineConfig({
   plugins: [react()],
