@@ -54,12 +54,21 @@ exports.updateSubscription = async (req, res) => {
         if (dbStatus !== 'expired') expiryDate.setDate(expiryDate.getDate() + parseInt(expiryDays));
 
         const formattedDate = expiryDate.toISOString().slice(0, 19).replace('T', ' ');
-        const query = `
-            INSERT INTO subscriptions (user_id, status, end_date) 
-            VALUES (?, ?, ?) 
-            ON DUPLICATE KEY UPDATE status = VALUES(status), end_date = VALUES(end_date)
-        `;
-        await db.query(query, [parseInt(id), dbStatus, formattedDate]);
+        
+        // Check if subscription exists for this user
+        const [existing] = await db.query("SELECT id FROM subscriptions WHERE user_id = ?", [parseInt(id)]);
+        
+        let query;
+        if (existing.length > 0) {
+            // UPDATE existing subscription
+            query = "UPDATE subscriptions SET status = ?, end_date = ? WHERE user_id = ?";
+            await db.query(query, [dbStatus, formattedDate, parseInt(id)]);
+        } else {
+            // INSERT new subscription
+            query = "INSERT INTO subscriptions (user_id, status, end_date) VALUES (?, ?, ?)";
+            await db.query(query, [parseInt(id), dbStatus, formattedDate]);
+        }
+        
         res.json({ message: `User status set to ${status}` });
     } catch (err) {
         res.status(500).json({ error: err.message });
