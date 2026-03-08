@@ -5,6 +5,20 @@ import reactHooks from "eslint-plugin-react-hooks";
 
 export default [
   { ignores: ["dist", "node_modules"] },
+  
+  // Configuration files with Node.js globals
+  {
+    files: ["vite.config.js", "postcss.config.js", "tailwind.config.js"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  
+  // React source files with browser globals
   {
     files: ["**/*.{js,jsx}"],
     languageOptions: {
