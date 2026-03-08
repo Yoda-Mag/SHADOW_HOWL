@@ -1,7 +1,13 @@
 const { GoogleGenAI } = require("@google/genai");
 
-// The client automatically looks for GEMINI_API_KEY in your .env
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Initialize with API key - tries multiple sources
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+
+if (!apiKey) {
+  console.warn('⚠️  GEMINI_API_KEY not found in environment variables. AI features will not work.');
+}
+
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 exports.askAssistant = async (req, res) => {
     try {
