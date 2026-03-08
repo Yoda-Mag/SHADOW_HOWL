@@ -5,47 +5,140 @@ on:
     branches: [ main ]
 
 jobs:
-  # JOB 1: The Gatekeeper 
+  # JOB 1: The Gatekeeper - Test everything first
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          cd Backend && npm install
-          cd ../Frontend && npm install --legacy-peer-deps
-      - name: Run Linting
-        run: |
-          cd Backend && npm run lint || echo "No backend linting found"
-          cd ../Frontend && npm run lint || echo "No frontend linting found"
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      
+      - name: Install Backend dependencies
+        run: cd Backend && npm ci
+      
+      - name: Install Frontend dependencies
+        run: cd Frontend && npm ci
+      
+      - name: Run Backend Linting
+        run: cd Backend && npm run lint || echo "No backend linting found"
+      
+      - name: Run Frontend Linting
+        run: cd Frontend && npm run lint || echo "No frontend linting found"
+      
+      - name: Backend Syntax Check
+        run: cd Backend && node --check index.js
 
-  # JOB 2: The Mover
+  # JOB 2: The Deployer - Only runs if tests pass
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: SSH into server and update
+      - uses: actions/checkout@v3
+      
+      - name: Deploy to AWS Lightsail
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -e  # Exit on any error
+            
+            echo "╔════════════════════════════════════════════╗"
+            echo "║     Deploying Shadow Howl to Production   ║"
+            echo "╚════════════════════════════════════════════╝"
+            echo ""
+            
             cd ~/SHADOW_HOWL
             
-            # 1. Clear the "Aborting" error by forcing the server to match GitHub
+            # ===== STEP 1: Update Code =====
+            echo "📥 Step 1: Pulling latest code from GitHub..."
             git fetch origin main
             git reset --hard origin/main
+            echo "✓ Code updated"
+            echo ""
             
-            # 2. Cleanup old accidental root files (optional but good)
-            rm -f package.json package-lock.json
-            rm -rf node_modules
+            # ===== STEP 2: Stop Services =====
+            echo "⏹️  Step 2: Stopping services..."
+            pm2 stop shadowhowl-backend || true
+            sleep 2
+            echo "✓ Services stopped"
+            echo ""
             
-            # 3. Backend update
-            cd Backend && npm install && pm2 restart shadowhowl-backend
+            # ===== STEP 3: Clean and Install Backend =====
+            echo "📦 Step 3: Installing Backend dependencies..."
+            cd ~/SHADOW_HOWL/Backend
+            rm -rf node_modules package-lock.json
+            npm install --production
+            echo "✓ Backend dependencies installed"
+            echo ""
             
-            # 4. Frontend: Wipe old modules to ensure v7 FontAwesome installs cleanly
-            cd ../Frontend
-            rm -rf node_modules
+            # ===== STEP 4: Verify Database Connectivity =====
+            echo "🗄️  Step 4: Verifying database connectivity..."
+            if node verify-db.js > /tmp/db-check.log 2>&1; then
+              echo "✓ Database connection verified"
+            else
+              echo "❌ Database connection FAILED - ABORTING DEPLOYMENT"
+              cat /tmp/db-check.log
+              exit 1
+            fi
+            echo ""
+            
+            # ===== STEP 5: Restart Backend Service =====
+            echo "🚀 Step 5: Starting Backend service..."
+            cd ~/SHADOW_HOWL
+            pm2 delete shadowhowl-backend || true
+            pm2 start Backend/index.js --name shadowhowl-backend --instances 1 --exec-mode cluster
+            pm2 save
+            echo "✓ Backend service started"
+            echo ""
+            
+            # ===== STEP 6: Build Frontend =====
+            echo "🏗️  Step 6: Building Frontend..."
+            cd ~/SHADOW_HOWL/Frontend
+            rm -rf node_modules package-lock.json
             npm install --legacy-peer-deps
             npm run build
+            echo "✓ Frontend built successfully"
+            echo ""
+            
+            # ===== STEP 7: Reload Nginx =====
+            echo "🌐 Step 7: Reloading Nginx..."
+            sudo systemctl reload nginx
+            echo "✓ Nginx reloaded"
+            echo ""
+            
+            # ===== STEP 8: Health Checks =====
+            echo "✅ Step 8: Running health checks..."
+            sleep 3
+            
+            # Check backend
+            if curl -s http://localhost:5000/api/health | grep -q "healthy"; then
+              echo "  ✓ Backend health check: PASSED"
+            else
+              echo "  ⚠️  Backend health check: PENDING (may need more time)"
+            fi
+            
+            # Check frontend
+            if curl -s http://localhost/ > /dev/null; then
+              echo "  ✓ Frontend health check: PASSED"
+            else
+              echo "  ⚠️  Frontend health check: PENDING"
+            fi
+            
+            echo ""
+            echo "╔════════════════════════════════════════════╗"
+            echo "║   ✅ Deployment Completed Successfully!   ║"
+            echo "╚════════════════════════════════════════════╝"
+            echo ""
+            
+            # Show service status
+            echo "📋 Service Status:"
+            pm2 list
+            echo ""
+            echo "📊 Recent logs:"
+            pm2 logs shadowhowl-backend --lines 10

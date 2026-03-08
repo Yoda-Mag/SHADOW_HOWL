@@ -19,13 +19,13 @@ jobs:
       - name: Setup Node.js (Latest 2026 LTS)
         uses: actions/setup-node@v4
         with:
-          node-version: '24' # Using the current stable LTS
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: Backend/package-lock.json
 
       - name: Install Dependencies
         working-directory: ./Backend
-        run: npm ci # Use 'npm ci' for clean, consistent installs in CI
+        run: npm ci
 
       - name: Run Linter (ESLint)
         working-directory: ./Backend
@@ -35,4 +35,58 @@ jobs:
         working-directory: ./Backend
         run: node --check index.js
 
-  
+      - name: Check Database Configuration
+        working-directory: ./Backend
+        run: |
+          cat > test-db-config.js << 'EOF'
+          console.log('Checking database configuration...');
+          require('dotenv').config();
+          
+          const requiredVars = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+          const missing = requiredVars.filter(v => !process.env[v]);
+          
+          if (missing.length > 0) {
+            console.error('❌ Missing required environment variables:', missing.join(', '));
+            process.exit(1);
+          }
+          
+          console.log('✓ All required database environment variables configured');
+          console.log(`  DB_HOST: ${process.env.DB_HOST}`);
+          console.log(`  DB_USER: ${process.env.DB_USER}`);
+          console.log(`  DB_NAME: ${process.env.DB_NAME}`);
+          process.exit(0);
+          EOF
+          node test-db-config.js
+
+      - name: Check API Routes Configuration
+        working-directory: ./Backend
+        run: |
+          cat > test-routes.js << 'EOF'
+          console.log('Checking API routes...');
+          const routes = [
+            './Routes/AuthRoutes',
+            './Routes/SignalRoutes',
+            './Routes/UserRoutes',
+            './Routes/ChatRoutes',
+            './Routes/adminRoutes'
+          ];
+          
+          let missing = [];
+          routes.forEach(route => {
+            try {
+              require(route);
+              console.log(`✓ ${route} loaded`);
+            } catch(e) {
+              missing.push(route);
+              console.error(`❌ ${route} NOT FOUND`);
+            }
+          });
+          
+          if (missing.length > 0) {
+            console.error(`Missing ${missing.length} routes`);
+            process.exit(1);
+          }
+          console.log('✓ All routes configured');
+          process.exit(0);
+          EOF
+          node test-routes.js

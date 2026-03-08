@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'Frontend/**' # Only run if you actually change the UI
+      - 'Frontend/**'
   pull_request:
     branches: [ main ]
     paths:
@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24' 
-          cache: 'npm' # Activates the cache for faster subsequent runs
+          cache: 'npm'
           cache-dependency-path: Frontend/package-lock.json
 
       - name: Install Dependencies
@@ -34,12 +34,38 @@ jobs:
         working-directory: ./Frontend
         run: npm run lint
 
+      - name: Check API Configuration
+        working-directory: ./Frontend
+        run: |
+          echo "Checking API configuration..."
+          
+          if [ -z "${{ secrets.VITE_API_URL }}" ]; then
+            echo "⚠️  VITE_API_URL not set in GitHub Secrets"
+            echo "    Frontend will use default: /api (same-origin proxy)"
+          else
+            echo "✓ VITE_API_URL configured: ${{ secrets.VITE_API_URL }}"
+          fi
+
       - name: Build Project (Vite)
         working-directory: ./Frontend
         run: npm run build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL || '/api' }}
           CI: true
+
+      - name: Verify Build Output
+        working-directory: ./Frontend
+        run: |
+          echo "Verifying build output..."
+          
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ ERROR: dist/index.html not found"
+            exit 1
+          fi
+          
+          echo "✓ Build output verified"
+          echo "  Files:"
+          ls -lah dist/ | head -20
 
       - name: Upload Production Build
         if: success()
@@ -47,4 +73,4 @@ jobs:
         with:
           name: frontend-dist-files
           path: Frontend/dist/
-          retention-days: 7 # Keeps the build files for a week
+          retention-days: 7

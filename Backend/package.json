@@ -1,14 +1,22 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Shadow Howl - Backend API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node index.js",
+    "prod": "NODE_ENV=production node index.js",
+    "pm2:start": "pm2 start ../ecosystem.config.js",
+    "pm2:stop": "pm2 stop shadow-howl-api",
+    "pm2:restart": "pm2 restart shadow-howl-api",
+    "pm2:logs": "pm2 logs shadow-howl-api",
+    "verify-db": "node verify-db.js",
+    "test": "echo \"No tests specified yet\"",
+    "lint": "eslint ."
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["trading", "signals", "api"],
+  "author": "Shadow Howl",
   "license": "ISC",
   "dependencies": {
     "@google/genai": "^1.35.0",
@@ -20,11 +28,6 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.16.0",
     "resend": "^6.9.2"
-  },
-  "scripts": {
-    "test": "echo \"No tests specified yet\"",
-    "start": "node server.js",
-    "lint": "eslint ."
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
