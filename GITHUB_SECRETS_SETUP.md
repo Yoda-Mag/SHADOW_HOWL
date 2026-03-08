@@ -7,46 +7,89 @@ Your CI/CD pipeline uses GitHub Secrets to securely store deployment credentials
 
 ## Required Secrets
 
-### 1. `HOST` - Your AWS Lightsail IP Address
-- **Value:** Your Lightsail instance public IP (e.g., `18.134.190.37`)
-- **How to find:**
-  - AWS Console → Lightsail → Your Instance
-  - Copy the "Public IP" value
+### Deployment Secrets (Always Required)
 
-### 2. `USERNAME` - SSH Username
+#### 1. `HOST` - Your AWS Lightsail IP Address
+- **Value:** `18.134.190.37`
+- **Description:** Your Lightsail instance public IP
+
+#### 2. `USERNAME` - SSH Username
 - **Value:** `ubuntu`
-- **Note:** This is always `ubuntu` for AWS Lightsail OS-Only instances
+- **Description:** Always `ubuntu` for AWS Lightsail OS-Only instances
 
-### 3. `SSH_KEY` - Private SSH Key
-- **Value:** Contents of your private key file
-- **How to generate/get:**
-  
-  **Option A: If you have an existing key pair:**
-  ```bash
-  # On your local machine, display your private key
-  cat ~/.ssh/your-key.pem
-  # Copy the ENTIRE contents (including -----BEGIN... and -----END...)
-  ```
-  
-  **Option B: Create a new key pair:**
-  ```bash
-  # On AWS Lightsail console
-  # 1. Go to Account → SSH Key Pairs
-  # 2. Create new key pair
-  # 3. Download the .pem file
-  # 4. Open the .pem file in text editor and copy contents
-  ```
+#### 3. `SSH_KEY` - Private SSH Key
+- **Value:** Contents of your private key `.pem` file
+- **Description:** Used to SSH into your Lightsail instance
 
-### 4. `VITE_API_URL` - Frontend API URL (Production)
-- **Value:** The URL where your backend API is accessible from the browser
-- **Options:**
-  - `http://your-lightsail-ip/api` - If using by IP
-  - `https://yourdomain.com/api` - If using custom domain + SSL
-  - **Important:** Must include `/api` at the end!
+#### 4. `VITE_API_URL` - Frontend API URL
+- **Value:** `http://18.134.190.37/api`
+- **Description:** Where frontend communicates with backend
 
-### 5. (Optional) Database Credentials for Backup
-- **Not strictly needed** - Already configured on the instance
-- **Useful for:** If you want backup automation
+---
+
+### Production Database Secrets (Required for Separate Database)
+
+Since you use **separate databases for local and production**, add these secrets:
+
+#### 5. `USER_DB_HOST` - Production Database Host
+- **Value:** Your production database hostname or IP
+- **Examples:**
+  - AWS RDS: `shadow-howl.c123456.us-east-1.rds.amazonaws.com`
+  - Self-hosted: `db.example.com`
+  - Same Lightsail instance: `127.0.0.1`
+
+#### 6. `USER_DB_PORT` - Database Port
+- **Value:** `3306` (standard MySQL port)
+
+#### 7. `USER_DB_USER` - Database Username
+- **Value:** `shadow_user` (or your production user)
+
+#### 8. `USER_DB_PASSWORD` - Database Password
+- **Value:** Your production database password (strong, complex)
+- **⚠️ SENSITIVE:** This is a secret - keep it safe!
+
+#### 9. `USER_DB_NAME` - Database Name
+- **Value:** `shadow_howl_prod` (or your production DB name)
+
+---
+
+### Optional API Keys (For Full Features)
+
+#### 10. `GEMINI_API_KEY`
+- **Value:** Your Google Gemini API key
+- **Get from:** https://aistudio.google.com/
+
+#### 11. `RESEND_API_KEY`
+- **Value:** Your Resend email API key
+- **Get from:** https://resend.com/
+
+#### 12. `JWT_SECRET`
+- **Value:** Generate with: `openssl rand -hex 32`
+- **Description:** Secret key for JWT token signing
+
+---
+
+## Total Required Secrets Summary
+
+```
+Minimum (for deployment):
+1. HOST = 18.134.190.37
+2. USERNAME = ubuntu
+3. SSH_KEY = [your-pem-content]
+4. VITE_API_URL = http://18.134.190.37/api
+
+For Production with Separate Database:
+5. USER_DB_HOST = your_production_db_host
+6. USER_DB_PORT = 3306
+7. USER_DB_USER = shadow_user
+8. USER_DB_PASSWORD = strong_password
+9. USER_DB_NAME = shadow_howl_prod
+
+Optional (for full features):
+10. GEMINI_API_KEY = your_key
+11. RESEND_API_KEY = your_key
+12. JWT_SECRET = random_secret
+```
 
 ---
 
@@ -56,28 +99,55 @@ Your CI/CD pipeline uses GitHub Secrets to securely store deployment credentials
 1. Go to your repository
 2. Settings → Secrets and variables → Actions
 3. Click "New repository secret"
-4. Add each secret:
+4. Add each secret one by one:
    - Name: `HOST`
-   - Value: `your-lightsail-ip`
+   - Value: `18.134.190.37`
 5. Click "Add secret"
-6. Repeat for each of the 4 secrets above
+6. Repeat for each secret above
 
-### Via GitHub CLI:
+### Via GitHub CLI (Faster):
 ```bash
+# Deployment credentials
 gh secret set HOST --body "18.134.190.37"
 gh secret set USERNAME --body "ubuntu"
 gh secret set SSH_KEY --body "$(cat ~/.ssh/your-key.pem)"
 gh secret set VITE_API_URL --body "http://18.134.190.37/api"
+
+# Production database (separate database)
+gh secret set USER_DB_HOST --body "your_production_db_host"
+gh secret set USER_DB_PORT --body "3306"
+gh secret set USER_DB_USER --body "shadow_user"
+gh secret set USER_DB_PASSWORD --body "your_strong_password"
+gh secret set USER_DB_NAME --body "shadow_howl_prod"
+
+# Optional API keys
+gh secret set GEMINI_API_KEY --body "your_key"
+gh secret set RESEND_API_KEY --body "your_key"
+gh secret set JWT_SECRET --body "$(openssl rand -hex 32)"
 ```
 
 ---
 
 ## Secret Values Reference
 
-### Example Configuration:
+### Final Checklist (Copy These Exactly)
 
 ```
 HOST = 18.134.190.37
+USERNAME = ubuntu
+SSH_KEY = [your-entire-pem-file-content]
+VITE_API_URL = http://18.134.190.37/api
+
+USER_DB_HOST = [your-production-db-address]
+USER_DB_PORT = 3306
+USER_DB_USER = shadow_user
+USER_DB_PASSWORD = [your-strong-password]
+USER_DB_NAME = shadow_howl_prod
+
+GEMINI_API_KEY = [your-api-key]
+RESEND_API_KEY = [your-api-key]
+JWT_SECRET = [generate-with-openssl-rand-hex-32]
+```
 USERNAME = ubuntu
 SSH_KEY = -----BEGIN RSA PRIVATE KEY-----
           MIIEowIBAAKCAQEA2x1u3q...
