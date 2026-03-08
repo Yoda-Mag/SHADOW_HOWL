@@ -64,20 +64,20 @@ jobs:
             
             # ===== STEP 1.5: Create Production .env from Secrets =====
             echo "🔐 Creating Backend .env from production secrets..."
-            cat > ~/SHADOW_HOWL/Backend/.env << EOF
-DB_HOST=${{ secrets.USER_DB_HOST }}
-DB_PORT=${{ secrets.USER_DB_PORT }}
-DB_USER=${{ secrets.USER_DB_USER }}
-DB_PASSWORD=${{ secrets.USER_DB_PASSWORD }}
-DB_NAME=${{ secrets.USER_DB_NAME }}
-NODE_ENV=production
-PORT=5000
-LOG_LEVEL=info
-GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
-RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
-JWT_SECRET=${{ secrets.JWT_SECRET }}
-ALLOWED_ORIGIN=http://18.134.190.37
-EOF
+            {
+              echo "DB_HOST=${{ secrets.USER_DB_HOST }}"
+              echo "DB_PORT=${{ secrets.USER_DB_PORT }}"
+              echo "DB_USER=${{ secrets.USER_DB_USER }}"
+              echo "DB_PASSWORD=${{ secrets.USER_DB_PASSWORD }}"
+              echo "DB_NAME=${{ secrets.USER_DB_NAME }}"
+              echo "NODE_ENV=production"
+              echo "PORT=5000"
+              echo "LOG_LEVEL=info"
+              echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}"
+              echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}"
+              echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"
+              echo "ALLOWED_ORIGIN=http://18.134.190.37"
+            } > ~/SHADOW_HOWL/Backend/.env
             echo "✓ Backend .env created"
             echo ""
             
