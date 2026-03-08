@@ -8,7 +8,10 @@ if (!apiKey) {
 }
 
 // 2026 SDK Syntax: Create the AI instance
-const ai = new GoogleGenAI({ apiKey: apiKey });
+const ai = new GoogleGenAI({ 
+    apiKey: apiKey,
+    apiVersion: 'v1' 
+});
 
 exports.askAssistant = async (req, res) => {
     try {
