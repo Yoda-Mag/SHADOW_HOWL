@@ -159,5 +159,7 @@ jobs:
             echo "📋 Service Status:"
             pm2 list
             echo ""
-            echo "📊 Recent logs:"
-            pm2 logs shadowhowl-backend --lines 10
+            echo "📊 Recent logs (last 10 lines):"
+            pm2 logs shadowhowl-backend --lines 10 --nostream
+            echo ""
+            echo "✅ Deployment complete. Your application is live at http://18.134.190.37"
