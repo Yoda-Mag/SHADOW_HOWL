@@ -111,7 +111,7 @@ jobs:
             echo "🚀 Step 5: Starting Backend service..."
             cd ~/SHADOW_HOWL
             pm2 delete shadowhowl-backend || true
-            pm2 start Backend/index.js --name shadowhowl-backend --instances 1 --exec-mode cluster
+            pm2 start Backend/index.js --name shadowhowl-backend
             pm2 save
             echo "✓ Backend service started"
             echo ""
@@ -121,7 +121,7 @@ jobs:
             cd ~/SHADOW_HOWL/Frontend
             rm -rf node_modules package-lock.json
             npm install --legacy-peer-deps
-            npm run build
+            VITE_API_URL=http://18.134.190.37/api npm run build
             echo "✓ Frontend built successfully"
             echo ""
             
